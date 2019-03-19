@@ -1,6 +1,6 @@
 import SteemContentRenderer from "../dist/index";
 
-const renderer = new SteemContentRenderer({
+const renderer = new SteemContentRenderer.DefaultRenderer({
     baseUrl: "https://steemit.com/",
 });
 

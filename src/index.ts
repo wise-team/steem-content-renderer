@@ -1,4 +1,8 @@
-import { SteemContentRenderer } from "./SteemContentRenderer";
+import { DefaultRenderer } from "./DefaultRenderer";
+export { DefaultRenderer } from "./DefaultRenderer";
 
-export { SteemContentRenderer } from "./SteemContentRenderer";
+export const SteemContentRenderer = {
+    DefaultRenderer,
+};
+
 export default SteemContentRenderer;

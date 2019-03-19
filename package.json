@@ -7,6 +7,9 @@
   "engines": {
     "node": ">=8"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build:cleanbefore": "rm -rf dist",
     "build:lint": "tslint -c tslint.json -p tsconfig.lint.json",

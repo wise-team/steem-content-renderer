@@ -1,10 +1,10 @@
 import ow from "ow";
 
-export class SteemContentRenderer {
-    private options: SteemContentRenderer.Options;
+export class DefaultRenderer {
+    private options: DefaultRenderer.Options;
 
-    public constructor(options: SteemContentRenderer.Options) {
-        SteemContentRenderer.Options.validate(options);
+    public constructor(options: DefaultRenderer.Options) {
+        DefaultRenderer.Options.validate(options);
         this.options = options;
     }
 
@@ -13,7 +13,7 @@ export class SteemContentRenderer {
     }
 }
 
-export namespace SteemContentRenderer {
+export namespace DefaultRenderer {
     export interface Options {
         baseUrl: string;
     }
