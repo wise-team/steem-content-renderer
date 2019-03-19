@@ -1,0 +1,24 @@
+# prettier-ignore
+
+dist: xenial
+language: node_js
+node_js:
+  - "8"
+  - "9"
+  - "10"
+
+install:
+  - npm ci
+
+script:
+  - NODE_ENV=production npm run build
+  - npm run test
+  - node sample/demo.js
+
+deploy:
+  - provider: script
+    script: npx semantic-release
+    skip_cleanup: true
+    on:
+      tags: false
+      all_branches: true
