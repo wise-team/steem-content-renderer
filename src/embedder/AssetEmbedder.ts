@@ -1,14 +1,16 @@
 import ow from "ow";
 
-export class Embedder {
-    private options: Embedder.Options;
-    public constructor(options: Embedder.Options) {
-        Embedder.Options.validate(options);
+import { Log } from "../Log";
+
+export class AssetEmbedder {
+    private options: AssetEmbedder.Options;
+    public constructor(options: AssetEmbedder.Options) {
+        AssetEmbedder.Options.validate(options);
         this.options = options;
     }
 
     public markAssets(input: string): string {
-        return HtmlReady(renderedText, { hideImages }).html;
+        return HtmlReady(input, { hideImages }).html;
     }
 
     public insertAssets(input: string, width: boolean, height: boolean) {
@@ -23,15 +25,13 @@ export class Embedder {
             if (match && match.length >= 3) {
                 const id = match[1];
                 const type = match[2];
-                const w = large ? 640 : 480,
-                    h = large ? 360 : 270;
                 if (type === "youtube") {
                     sections.push(
                         `<YoutubePreview
-                            key={idx++}
-                            width={w}
-                            height={h}
-                            youTubeId={id}
+                            key=${idx++}
+                            width=${this.options.width}
+                            height=${this.options.height}
+                            youTubeId=${id}
                             frameBorder="0"
                             allowFullScreen="true"
                         />`,
@@ -41,10 +41,10 @@ export class Embedder {
                     sections.push(
                         `<div className="videoWrapper">
                             <iframe
-                                key={idx++}
-                                src={url}
-                                width={w}
-                                height={h}
+                                key=${idx++}
+                                src=${url}
+                                width=${this.options.width}
+                                height=${this.options.height}
                                 frameBorder="0"
                                 webkitallowfullscreen
                                 mozallowfullscreen
@@ -56,19 +56,28 @@ export class Embedder {
                     const url = `https://player.twitch.tv/${id}`;
                     sections.push(
                         `<div className="videoWrapper">
-                            <iframe key={idx++} src={url} width={w} height={h} frameBorder="0" allowFullScreen />
+                            <iframe
+                                key=${idx++}
+                                src=${url}
+                                width=${this.options.width}
+                                height=${this.options.height}
+                                rameBorder="0"
+                                allowFullScreen
+                            />
                         </div>`,
                     );
                 } else {
-                    console.error("MarkdownViewer unknown embed type", type);
+                    Log.log().warn("MarkdownViewer unknown embed type", type);
                 }
                 section = section.substring(`${id} ${type} ~~~`.length);
-                if (section === "") continue;
+                if (section === "") {
+                    continue;
+                }
             }
             sections.push(
                 `<div
-                    key={idx++}
-                    dangerouslySetInnerHTML={{
+                    key=${idx++}
+                    dangerouslySetInnerHTML=${{
                         __html: section,
                     }}
                 />`,
@@ -78,10 +87,16 @@ export class Embedder {
     }
 }
 
-export namespace Embedder {
-    export interface Options {}
+export namespace AssetEmbedder {
+    export interface Options {
+        width: number;
+        height: number;
+    }
 
     export namespace Options {
-        export function validate(o: Options) {}
+        export function validate(o: Options) {
+            ow(o.width, "AssetEmbedder.Options.width", ow.number.integer.positive);
+            ow(o.height, "AssetEmbedder.Options.height", ow.number.integer.positive);
+        }
     }
 }
