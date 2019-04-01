@@ -1,18 +1,14 @@
 /**
  * Based on: https://github.com/steemit/condenser/raw/master/src/shared/HtmlReady.js
  */
-import * as tt from "counterpart";
 import * as xmldom from "xmldom";
 
-import { Log } from "../Log";
+import { Log } from "../../../Log";
 
 import { validate_account_name } from "./ChainValidation";
 import linksRe, { any as linksAny } from "./Links";
 import * as Phishing from "./Phishing";
 import proxifyImageUrl from "./ProxifyUrl";
-
-export const getPhishingWarningMessage = () => tt("g.phishy_message");
-export const getExternalLinkWarningMessage = () => tt("g.external_link_message");
 
 const noop = () => {
     /* */
