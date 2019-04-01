@@ -1,5 +1,7 @@
 export class Sanitizer {
-    public constructor() {}
+    public constructor() {
+        //
+    }
 
     public preliminarySanitize(text: string): string {
         return this.stripHtmlComments(text);

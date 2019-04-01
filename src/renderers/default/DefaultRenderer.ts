@@ -1,9 +1,10 @@
 import ow from "ow";
 import * as Remarkable from "remarkable";
 
-import { AssetEmbedder } from "../../embedder//AssetEmbedder";
-import { Sanitizer } from "../../sanitization/Sanitizer";
 import { SecurityChecker } from "../../security/SecurityChecker";
+
+import { AssetEmbedder } from "./embedder/AssetEmbedder";
+import { Sanitizer } from "./sanitization/Sanitizer";
 
 export class DefaultRenderer {
     private options: DefaultRenderer.Options;

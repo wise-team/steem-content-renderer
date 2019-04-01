@@ -1,6 +1,8 @@
 import ow from "ow";
 
-import { Log } from "../Log";
+import { Log } from "../../../Log";
+
+import { HtmlReady } from "./HtmlReady";
 
 export class AssetEmbedder {
     private options: AssetEmbedder.Options;
