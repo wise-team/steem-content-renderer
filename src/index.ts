@@ -1,5 +1,5 @@
-import { DefaultRenderer } from "./DefaultRenderer";
-export { DefaultRenderer } from "./DefaultRenderer";
+import { DefaultRenderer } from "./renderers/default/DefaultRenderer";
+export { DefaultRenderer } from "./renderers/default/DefaultRenderer";
 
 export const SteemContentRenderer = {
     DefaultRenderer,

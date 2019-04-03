@@ -5,14 +5,17 @@ import ow from "ow";
 import * as sanitize from "sanitize-html";
 
 import { Log } from "../../../Log";
+import { DefaultRendererLocalization } from "../DefaultRendererLocalization";
 import { StaticConfig } from "../StaticConfig";
 
 export class TagTransformingSanitizer {
     private options: TagTransformingSanitizer.Options;
+    private localization: DefaultRendererLocalization;
     private sanitizationErrors: string[] = [];
 
-    public constructor(options: TagTransformingSanitizer.Options) {
+    public constructor(options: TagTransformingSanitizer.Options, localization: DefaultRendererLocalization) {
         TagTransformingSanitizer.Options.validate(options);
+        this.localization = localization;
 
         this.options = options;
     }
@@ -91,7 +94,7 @@ export class TagTransformingSanitizer {
                     if (this.options.noImage) {
                         const retTagOnImagesNotAllowed: sanitize.Tag = {
                             tagName: "div",
-                            text: this.options.localization.noImageMessage,
+                            text: this.localization.noImage,
                             attribs: {},
                         };
                         return retTagOnImagesNotAllowed;
@@ -132,7 +135,7 @@ export class TagTransformingSanitizer {
                     if (validClass) {
                         attys.class = validClass;
                     }
-                    if (validClass === "phishy" && attribs.title === this.options.localization.phishingWarningMessage) {
+                    if (validClass === "phishy" && attribs.title === this.localization.phishingWarning) {
                         attys.title = attribs.title;
                     }
                     const retTag: sanitize.Tag = {
@@ -163,7 +166,7 @@ export class TagTransformingSanitizer {
                     if (!href.match(/^(\/(?!\/)|https:\/\/steemit.com)/)) {
                         // attys.target = '_blank' // pending iframe impl https://mathiasbynens.github.io/rel-noopener/
                         attys.rel = this.options.addNofollowToLinks ? "nofollow noopener" : "noopener";
-                        attys.title = this.options.localization.phishingWarningMessage;
+                        attys.title = this.localization.phishingWarning;
                     }
                     const retTag: sanitize.Tag = {
                         tagName,
@@ -182,10 +185,6 @@ export namespace TagTransformingSanitizer {
         iframeHeight: number;
         addNofollowToLinks: boolean;
         noImage: boolean;
-        localization: {
-            noImageMessage: string;
-            phishingWarningMessage: string;
-        };
     }
 
     export namespace Options {
@@ -194,17 +193,6 @@ export namespace TagTransformingSanitizer {
             ow(o.iframeHeight, "TagTransformingSanitizer.Options.iframeHeight", ow.number.integer.positive);
             ow(o.addNofollowToLinks, "TagTransformingSanitizer.Options.addNofollowToLinks", ow.boolean);
             ow(o.noImage, "TagTransformingSanitizer.Options.noImage", ow.boolean);
-            ow(o.localization, "TagTransformingSanitizer.Options.localization", ow.object);
-            ow(
-                o.localization.noImageMessage,
-                "TagTransformingSanitizer.Options.localization.noImageMessage",
-                ow.string.nonEmpty,
-            );
-            ow(
-                o.localization.phishingWarningMessage,
-                "TagTransformingSanitizer.Options.localization.phishingWarningMessage",
-                ow.string.nonEmpty,
-            );
         }
     }
 }

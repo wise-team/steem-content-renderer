@@ -3,6 +3,7 @@ import * as Remarkable from "remarkable";
 
 import { SecurityChecker } from "../../security/SecurityChecker";
 
+import { DefaultRendererLocalization } from "./DefaultRendererLocalization";
 import { AssetEmbedder } from "./embedder/AssetEmbedder";
 import { PreliminarySanitizer } from "./sanitization/PreliminarySanitizer";
 import { TagTransformingSanitizer } from "./sanitization/TagTransformingSanitizer";
@@ -10,21 +11,34 @@ import { TagTransformingSanitizer } from "./sanitization/TagTransformingSanitize
 export class DefaultRenderer {
     private options: DefaultRenderer.Options;
     private tagTransformingSanitizer: TagTransformingSanitizer;
+    private embedder: AssetEmbedder;
 
-    public constructor(options: DefaultRenderer.Options) {
+    public constructor(options: DefaultRenderer.Options, localization: DefaultRendererLocalization) {
         DefaultRenderer.Options.validate(options);
         this.options = options;
 
-        this.tagTransformingSanitizer = new TagTransformingSanitizer({
-            iframeWidth: this.options.assets.width,
-            iframeHeight: this.options.assets.height,
-            addNofollowToLinks: this.options.addNofollowToLinks,
-            noImage: this.options.doNotShowImages,
-            localization: {
-                noImageMessage: this.options.localization.no_image_message,
-                phishingWarningMessage: this.options.localization.phishy_message,
+        DefaultRendererLocalization.validate(localization);
+
+        this.tagTransformingSanitizer = new TagTransformingSanitizer(
+            {
+                iframeWidth: this.options.assetsWidth,
+                iframeHeight: this.options.assetsHeight,
+                addNofollowToLinks: this.options.addNofollowToLinks,
+                noImage: this.options.doNotShowImages,
             },
-        });
+            localization,
+        );
+
+        this.embedder = new AssetEmbedder(
+            {
+                ipfsPrefix: this.options.ipfsPrefix,
+                width: this.options.assetsWidth,
+                height: this.options.assetsHeight,
+                hideImages: this.options.doNotShowImages,
+                imageProxyFn: this.options.imageProxyFn,
+            },
+            localization,
+        );
     }
 
     public render(input: string): string {
@@ -39,10 +53,10 @@ export class DefaultRenderer {
         text = isHtml ? text : this.renderMarkdown(text);
 
         text = this.wrapRenderedTextWithHtmlIfNeeded(text);
-        text = this.options.embedder.markAssets(text);
+        text = this.embedder.markAssets(text);
         text = this.sanitize(text);
         SecurityChecker.checkSecurity(text);
-        text = this.options.embedder.insertAssets(text);
+        text = this.embedder.insertAssets(text);
 
         return text;
     }
@@ -95,15 +109,10 @@ export namespace DefaultRenderer {
         skipSanitization: boolean;
         addNofollowToLinks: boolean;
         doNotShowImages: boolean;
-        assets: {
-            width: number;
-            height: number;
-        };
-        localization: {
-            phishy_message: string; // "Link expanded to plain text; beware of a potential phishing attempt"
-            external_link_message: string; // "This link will take you away from example.com"
-            no_image_message: string; // "Images not allowed"
-        };
+        ipfsPrefix: string;
+        assetsWidth: number;
+        assetsHeight: number;
+        imageProxyFn: (url: string) => string;
     }
 
     export namespace Options {
@@ -112,15 +121,10 @@ export namespace DefaultRenderer {
             ow(o.skipSanitization, "Options.skipSanitization", ow.boolean);
             ow(o.addNofollowToLinks, "Options.addNofollowToLinks", ow.boolean);
             ow(o.doNotShowImages, "Options.doNotShowImages", ow.boolean);
-
-            ow(o.assets, "Options.assets", ow.object);
-            ow(o.assets.width, "Options.assets.width", ow.number.integer.positive);
-            ow(o.assets.height, "Options.assets.height", ow.number.integer.positive);
-
-            ow(o.localization, "Options.localization", ow.object);
-            ow(o.localization.phishy_message, "Options.phishy_message", ow.string.nonEmpty);
-            ow(o.localization.external_link_message, "Options.external_link_message", ow.string.nonEmpty);
-            ow(o.localization.no_image_message, "Options.no_image_message", ow.string.nonEmpty);
+            ow(o.ipfsPrefix, "Options.ipfsPrefix", ow.string);
+            ow(o.assetsWidth, "Options.assetsWidth", ow.number.integer.positive);
+            ow(o.assetsHeight, "Options.assetsHeight", ow.number.integer.positive);
+            ow(o.imageProxyFn, "AssetEmbedder.Options.imageProxyFn", ow.function);
         }
     }
 }

@@ -1,21 +1,33 @@
 import ow from "ow";
 
 import { Log } from "../../../Log";
+import { DefaultRendererLocalization } from "../DefaultRendererLocalization";
 
-import { HtmlReady } from "./HtmlReady";
+import { HtmlParser } from "./HtmlParser";
 
 export class AssetEmbedder {
     private options: AssetEmbedder.Options;
-    public constructor(options: AssetEmbedder.Options) {
+    private localization: DefaultRendererLocalization;
+
+    public constructor(options: AssetEmbedder.Options, localization: DefaultRendererLocalization) {
         AssetEmbedder.Options.validate(options);
         this.options = options;
+        this.localization = localization;
     }
 
     public markAssets(input: string): string {
-        return HtmlReady(input, { hideImages }).html;
+        const parser = new HtmlParser(
+            {
+                ipfsPrefix: this.options.ipfsPrefix,
+                hideImages: this.options.hideImages,
+                imageProxyFn: this.options.imageProxyFn,
+            },
+            this.localization,
+        );
+        return parser.parse(input).getParsedDocumentAsString();
     }
 
-    public insertAssets(input: string, width: boolean, height: boolean) {
+    public insertAssets(input: string) {
         // In addition to inserting the youtube component, this allows
         // react to compare separately preventing excessive re-rendering.
         let idx = 0;
@@ -91,14 +103,20 @@ export class AssetEmbedder {
 
 export namespace AssetEmbedder {
     export interface Options {
+        ipfsPrefix: string;
         width: number;
         height: number;
+        hideImages: boolean;
+        imageProxyFn: (url: string) => string;
     }
 
     export namespace Options {
         export function validate(o: Options) {
+            ow(o.ipfsPrefix, "AssetEmbedder.Options.ipfsPrefix", ow.string);
             ow(o.width, "AssetEmbedder.Options.width", ow.number.integer.positive);
             ow(o.height, "AssetEmbedder.Options.height", ow.number.integer.positive);
+            ow(o.hideImages, "AssetEmbedder.Options.hideImages", ow.boolean);
+            ow(o.imageProxyFn, "AssetEmbedder.Options.imageProxyFn", ow.function);
         }
     }
 }
