@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { JSDOM } from "jsdom";
 import "mocha";
 
-import * as example1 from "./_test/example1.mock.test";
+// import * as example1 from "./_test/example1.mock.test";
 import { DefaultRenderer } from "./DefaultRenderer";
 
 describe("DefaultRender", () => {
