@@ -5,6 +5,10 @@ node_js:
   - '9'
   - '10'
 
+branches:
+  except:
+    - /^v[0-9]/
+
 before_install:
   - npm i -g npm
 
