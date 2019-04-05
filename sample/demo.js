@@ -1,7 +1,14 @@
 const SteemContentRenderer = require("../dist/index");
 
 const renderer = new SteemContentRenderer.DefaultRenderer({
-    baseUrl: "https://steemit.com/"
+    breaks: true,
+    skipSanitization: false,
+    addNofollowToLinks: true,
+    doNotShowImages: false,
+    ipfsPrefix: "",
+    assetsWidth: 640,
+    assetsHeight: 480,
+    imageProxyFn: (url) => url,
 });
 
 const input = `

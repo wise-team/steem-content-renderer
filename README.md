@@ -24,7 +24,14 @@ $ npm install --save steem-content-renderer
 import { SteemContentRenderer } from "steem-content-renderer";
 
 const renderer = new SteemContentRenderer({
-    baseUrl: "https://steemit.com/",
+    breaks: true,
+    skipSanitization: false,
+    addNofollowToLinks: true,
+    doNotShowImages: false,
+    ipfsPrefix: "",
+    assetsWidth: 640,
+    assetsHeight: 480,
+    imageProxyFn: (url: string) => url,
 });
 
 const safeHtmlStr = renderer.render(postContent);
