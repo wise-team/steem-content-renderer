@@ -21,9 +21,9 @@ $ npm install --save steem-content-renderer
 **Typescript:**
 
 ```typescript
-import { SteemContentRenderer } from "steem-content-renderer";
+import { DefaultRenderer } from "steem-content-renderer";
 
-const renderer = new SteemContentRenderer({
+const renderer = new DefaultRenderer({
     breaks: true,
     skipSanitization: false,
     addNofollowToLinks: true,
@@ -32,8 +32,8 @@ const renderer = new SteemContentRenderer({
     assetsWidth: 640,
     assetsHeight: 480,
     imageProxyFn: (url: string) => url,
-    usertagUrlFn: (account) => "/@" + account,
-    hashtagUrlFn: (hashtag) => "/trending/" + hashtag,
+    usertagUrlFn: account => "/@" + account,
+    hashtagUrlFn: hashtag => "/trending/" + hashtag,
 });
 
 const safeHtmlStr = renderer.render(postContent);
