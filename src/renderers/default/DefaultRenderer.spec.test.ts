@@ -21,7 +21,7 @@ describe("DefaultRender", () => {
 
     const tests = [
         { name: "Renders H1 headers correctly", raw: `# Header H1`, expected: "<h1>Header H1</h1>" },
-        { name: "Renders H4 headers correctly", raw: `#### Header H4`, expected: "<h4>Header H1</h4>" },
+        { name: "Renders H4 headers correctly", raw: `#### Header H4`, expected: "<h4>Header H4</h4>" },
         {
             name: "Renders headers and paragraphs correctly",
             raw: "# Header H1\n\nSome paragraph\n\n## Header H2\n\nAnother paragraph",
@@ -52,21 +52,4 @@ describe("DefaultRender", () => {
             expect(renderedNode.isEqualNode(comparisonNode)).to.be.equal(true);
         }),
     );
-
-    it("Produces equivalent to steemit.com", () => {
-        const renderer = new DefaultRenderer(defaultOptions);
-        const rendered = renderer.render(example1.raw);
-
-        console.log("=========== RENDERED ============");
-        console.log(rendered);
-        console.log();
-
-        console.log("=========== STEEMIT COMPARISON ============");
-        console.log(example1.rendered);
-        console.log();
-
-        const renderedNode = JSDOM.fragment(rendered);
-        const comparisonNode = JSDOM.fragment(example1.rendered);
-        expect(renderedNode.isEqualNode(comparisonNode)).to.be.equal(true);
-    });
 });
