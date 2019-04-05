@@ -32,6 +32,8 @@ const renderer = new SteemContentRenderer({
     assetsWidth: 640,
     assetsHeight: 480,
     imageProxyFn: (url: string) => url,
+    usertagUrlFn: (account) => "/@" + account,
+    hashtagUrlFn: (hashtag) => "/trending/" + hashtag,
 });
 
 const safeHtmlStr = renderer.render(postContent);
