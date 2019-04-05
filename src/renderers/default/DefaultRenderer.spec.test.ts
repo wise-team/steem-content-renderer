@@ -17,6 +17,8 @@ describe("DefaultRender", () => {
         assetsWidth: 640,
         assetsHeight: 480,
         imageProxyFn: (url: string) => url,
+        usertagUrlFn: (account: string) => `/@${account}`,
+        hashtagUrlFn: (hashtag: string) => `/trending/${hashtag}`,
     };
 
     const tests = [
@@ -28,9 +30,14 @@ describe("DefaultRender", () => {
             expected: "<h1>Header H1</h1>\n<p>Some paragraph</p>\n<h2>Header H2</h2>\n<p>Another paragraph</p>",
         },
         {
-            name: "Renders steemit mentions correctly",
-            raw: "@noisy",
-            expected: "<h1>Header H1</h1>\n<p>Some paragraph</p>\n<h2>Header H2</h2>\n<p>Another paragraph</p>",
+            name: "Renders steem mentions correctly",
+            raw: "Content @noisy another content",
+            expected: '<p>Content <a href="/@noisy">@noisy</a> another content</p>',
+        },
+        {
+            name: "Renders steem hashtags correctly",
+            raw: "Content #pl-nuda another content",
+            expected: '<p>Content <a href="/trending/pl-nuda">#pl-nuda</a> another content</p>',
         },
     ];
 

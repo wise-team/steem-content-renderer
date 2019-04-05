@@ -176,7 +176,7 @@ export class HtmlParser {
         if (url) {
             this.state.images.add(url);
             if (this.mutate) {
-                let url2 = this.ipfsPrefix(url);
+                let url2 = this.normalizeUrl(url);
                 if (/^\/\//.test(url2)) {
                     // Change relative protocol imgs to https
                     url2 = "https:" + url2;
@@ -251,7 +251,8 @@ export class HtmlParser {
             if (!this.mutate) {
                 return tag;
             }
-            return space + `<a href="/trending/${tagLower}">${tag}</a>`;
+            const tagUrl = this.options.hashtagUrlFn(tagLower);
+            return space + `<a href="${tagUrl}">${tag.trim()}</a>`;
         });
 
         // usertag (mention)
@@ -273,7 +274,8 @@ export class HtmlParser {
                     return `${preceedings}${user}`;
                 }
 
-                return valid ? `${preceedings}<a href="/@${userLower}">@${user}</a>` : `${preceedings}@${user}`;
+                const userTagUrl = this.options.usertagUrlFn(userLower);
+                return valid ? `${preceedings}<a href="${userTagUrl}">@${user}</a>` : `${preceedings}@${user}`;
             },
         );
 
@@ -282,7 +284,7 @@ export class HtmlParser {
                 if (images) {
                     images.add(ln);
                 }
-                return `<img src="${this.ipfsPrefix(ln)}" />`;
+                return `<img src="${this.normalizeUrl(ln)}" />`;
             }
 
             // do not linkify .exe or .zip urls
@@ -298,7 +300,7 @@ export class HtmlParser {
             if (links) {
                 links.add(ln);
             }
-            return `<a href="${this.ipfsPrefix(ln)}">${ln}</a>`;
+            return `<a href="${this.normalizeUrl(ln)}">${ln}</a>`;
         });
         return content;
     }
@@ -417,7 +419,7 @@ export class HtmlParser {
         };
     }
 
-    private ipfsPrefix(url: any) {
+    private normalizeUrl(url: any) {
         if (this.options.ipfsPrefix) {
             // Convert //ipfs/xxx  or /ipfs/xxx  into  https://steemit.com/ipfs/xxxxx
             if (/^\/?\/ipfs\//.test(url)) {
@@ -434,6 +436,8 @@ export namespace HtmlParser {
     export interface Options {
         ipfsPrefix: string;
         imageProxyFn: (url: string) => string;
+        hashtagUrlFn: (hashtag: string) => string;
+        usertagUrlFn: (account: string) => string;
         hideImages: boolean;
     }
 
@@ -442,6 +446,8 @@ export namespace HtmlParser {
             ow(o, "HtmlParser.Options", ow.object);
             ow(o.ipfsPrefix, "HtmlParser.Options.ipfsPrefix", ow.string);
             ow(o.imageProxyFn, "HtmlParser.Options.imageProxyFn", ow.function);
+            ow(o.hashtagUrlFn, "HtmlParser.Options.hashtagUrlFn", ow.function);
+            ow(o.usertagUrlFn, "HtmlParser.Options.usertagUrlFn", ow.function);
             ow(o.hideImages, "HtmlParser.Options.hideImages", ow.boolean);
         }
     }

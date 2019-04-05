@@ -39,6 +39,8 @@ export class DefaultRenderer {
                 height: this.options.assetsHeight,
                 hideImages: this.options.doNotShowImages,
                 imageProxyFn: this.options.imageProxyFn,
+                hashtagUrlFn: this.options.hashtagUrlFn,
+                usertagUrlFn: this.options.usertagUrlFn,
             },
             localization,
         );
@@ -116,6 +118,8 @@ export namespace DefaultRenderer {
         assetsWidth: number;
         assetsHeight: number;
         imageProxyFn: (url: string) => string;
+        hashtagUrlFn: (hashtag: string) => string;
+        usertagUrlFn: (account: string) => string;
     }
 
     export namespace Options {
@@ -127,7 +131,9 @@ export namespace DefaultRenderer {
             ow(o.ipfsPrefix, "Options.ipfsPrefix", ow.string);
             ow(o.assetsWidth, "Options.assetsWidth", ow.number.integer.positive);
             ow(o.assetsHeight, "Options.assetsHeight", ow.number.integer.positive);
-            ow(o.imageProxyFn, "AssetEmbedder.Options.imageProxyFn", ow.function);
+            ow(o.imageProxyFn, "Options.imageProxyFn", ow.function);
+            ow(o.hashtagUrlFn, "Options.hashtagUrlFn", ow.function);
+            ow(o.usertagUrlFn, "Options.usertagUrlFn", ow.function);
         }
     }
 }

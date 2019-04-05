@@ -21,6 +21,8 @@ export class AssetEmbedder {
                 ipfsPrefix: this.options.ipfsPrefix,
                 hideImages: this.options.hideImages,
                 imageProxyFn: this.options.imageProxyFn,
+                hashtagUrlFn: this.options.hashtagUrlFn,
+                usertagUrlFn: this.options.usertagUrlFn,
             },
             this.localization,
         );
@@ -109,6 +111,8 @@ export namespace AssetEmbedder {
         height: number;
         hideImages: boolean;
         imageProxyFn: (url: string) => string;
+        hashtagUrlFn: (hashtag: string) => string;
+        usertagUrlFn: (account: string) => string;
     }
 
     export namespace Options {
@@ -118,6 +122,8 @@ export namespace AssetEmbedder {
             ow(o.height, "AssetEmbedder.Options.height", ow.number.integer.positive);
             ow(o.hideImages, "AssetEmbedder.Options.hideImages", ow.boolean);
             ow(o.imageProxyFn, "AssetEmbedder.Options.imageProxyFn", ow.function);
+            ow(o.hashtagUrlFn, "HtmlParser.Options.hashtagUrlFn", ow.function);
+            ow(o.usertagUrlFn, "HtmlParser.Options.usertagUrlFn", ow.function);
         }
     }
 }

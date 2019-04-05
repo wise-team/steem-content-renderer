@@ -9,6 +9,8 @@ const renderer = new SteemContentRenderer.DefaultRenderer({
     assetsWidth: 640,
     assetsHeight: 480,
     imageProxyFn: (url) => url,
+    usertagUrlFn: (account) => "/@" + account,
+    hashtagUrlFn: (hashtag) => "/trending/" + hashtag,
 });
 
 const input = `

@@ -13,6 +13,8 @@ describe("htmlready", () => {
     const htmlParserOptions: HtmlParser.Options = {
         ipfsPrefix: "",
         imageProxyFn: (url: string) => url,
+        usertagUrlFn: (account: string) => `/@${account}`,
+        hashtagUrlFn: (hashtag: string) => `/trending/${hashtag}`,
         hideImages: false,
     };
 
