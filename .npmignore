@@ -1,4 +1,5 @@
 /_dev
+/.travis.yml
 /.prettierrc.yml
 /TODO
 /README.md
