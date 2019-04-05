@@ -13,7 +13,10 @@ export class DefaultRenderer {
     private tagTransformingSanitizer: TagTransformingSanitizer;
     private embedder: AssetEmbedder;
 
-    public constructor(options: DefaultRenderer.Options, localization: DefaultRendererLocalization) {
+    public constructor(
+        options: DefaultRenderer.Options,
+        localization: DefaultRendererLocalization = DefaultRendererLocalization.DEFAULT,
+    ) {
         DefaultRenderer.Options.validate(options);
         this.options = options;
 

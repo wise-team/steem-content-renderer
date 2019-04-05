@@ -24,9 +24,8 @@
   "dependencies": {
     "counterpart": "^0.18.6",
     "ow": "^0.12.0",
-    "sanitize": "^2.1.0",
-    "universe-log": "^1.4.2",
-    "xmldom": "^0.1.27"
+    "sanitize-html": "^1.20.0",
+    "universe-log": "^1.4.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.5.2",
@@ -35,28 +34,36 @@
     "@types/chai": "^4.1.7",
     "@types/chai-as-promised": "^7.1.0",
     "@types/counterpart": "^0.18.1",
+    "@types/jsdom": "^12.2.3",
     "@types/lodash": "^4.14.123",
     "@types/mocha": "^5.2.6",
     "@types/node": "^11.11.6",
     "@types/remarkable": "^1.7.3",
     "@types/sanitize-html": "^1.18.2",
     "@types/sinon": "^7.0.10",
+    "@types/steem-js-alpha": "https://github.com/wise-team/types-for-steem-js/raw/master/bin/types-steem-js-alpha-3.1.2.tgz",
     "@types/uuid": "^3.4.4",
     "@types/xmldom": "^0.1.29",
+    "axios": "^0.18.0",
     "bluebird": "^3.5.3",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
+    "cheerio": "^1.0.0-rc.2",
     "husky": "^1.3.1",
+    "jsdom": "^14.0.0",
     "lodash": "^4.17.11",
     "mocha": "^6.0.2",
     "remarkable": "^1.7.1",
     "semantic-release": "^16.0.0-beta.18",
     "sinon": "^7.3.0",
+    "steem": "^0.7.4",
     "ts-node": "^8.0.3",
     "tslint": "^5.14.0",
     "typescript": "^3.3.4000",
     "uuid": "^3.3.2",
-    "wise-tslint-configuration": "^0.2.0"
+    "wise-tslint-configuration": "^0.2.0",
+    "xmldom": "^0.1.27",
+    "xpath": "0.0.27"
   },
   "commitlint": {
     "extends": [

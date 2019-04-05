@@ -89,12 +89,13 @@ export class AssetEmbedder {
                 }
             }
             sections.push(
-                `<div
+                /*`<div
                     key=${idx++}
                     dangerouslySetInnerHTML=${{
                         __html: section,
                     }}
-                />`,
+                />`,*/
+                section,
             );
         }
         return sections.join();
