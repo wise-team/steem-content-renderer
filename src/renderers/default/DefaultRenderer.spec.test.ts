@@ -1,4 +1,4 @@
-// tslint:disable no-console max-line-length
+// tslint:disable no-console max-line-length quotemark
 
 import { expect } from "chai";
 import { JSDOM } from "jsdom";
