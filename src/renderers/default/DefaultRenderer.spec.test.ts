@@ -46,34 +46,6 @@ describe("DefaultRender", () => {
             expected:
                 '<div class="videoWrapper"><iframe frameborder="0" allowfullscreen="allowfullscreen" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen" src="https://player.vimeo.com/video/174544848" width="640" height="480"></iframe></div>',
         },
-        {
-            name: "Embeds correctly youtube video via paste",
-            raw:
-                '',
-            expected:
-                'a',
-        },
-        {
-            name: "Embeds correctly twich video via paste",
-            raw:
-                '',
-            expected:
-                'a',
-        },
-        {
-            name: "Embeds correctly youtube video via youtube.com link",
-            raw:
-                '',
-            expected:
-                'a',
-        },
-        {
-            name: "Embeds correctly youtube video via youtu.be link",
-            raw:
-                '',
-            expected:
-                'a',
-        },
     ];
 
     tests.forEach(test =>
