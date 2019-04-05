@@ -20,7 +20,7 @@ script:
   - npm run test
   - node sample/demo-local.js
   # Test installation:
-  - npm i -g && mkdir /libtest && cp ./sample/demo-lib.js /libtest/demo-lib.js && node demo-lib.js 
+  - npm i -g && mkdir ~/libtest && cp ./sample/demo-lib.js ~/libtest/demo-lib.js && cd ~/libtest && node demo-lib.js 
 
 jobs:
   include:
