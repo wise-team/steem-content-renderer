@@ -1,4 +1,4 @@
-// tslint:disable no-console
+// tslint:disable no-console max-line-length
 
 import { expect } from "chai";
 import { JSDOM } from "jsdom";
@@ -38,6 +38,41 @@ describe("DefaultRender", () => {
             name: "Renders steem hashtags correctly",
             raw: "Content #pl-nuda another content",
             expected: '<p>Content <a href="/trending/pl-nuda">#pl-nuda</a> another content</p>',
+        },
+        {
+            name: "Embeds correctly vimeo video via paste",
+            raw:
+                '<iframe src="https://player.vimeo.com/video/174544848?byline=0" width="640" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>',
+            expected:
+                '<div class="videoWrapper"><iframe frameborder="0" allowfullscreen="allowfullscreen" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen" src="https://player.vimeo.com/video/174544848" width="640" height="480"></iframe></div>',
+        },
+        {
+            name: "Embeds correctly youtube video via paste",
+            raw:
+                '',
+            expected:
+                'a',
+        },
+        {
+            name: "Embeds correctly twich video via paste",
+            raw:
+                '',
+            expected:
+                'a',
+        },
+        {
+            name: "Embeds correctly youtube video via youtube.com link",
+            raw:
+                '',
+            expected:
+                'a',
+        },
+        {
+            name: "Embeds correctly youtube video via youtu.be link",
+            raw:
+                '',
+            expected:
+                'a',
         },
     ];
 

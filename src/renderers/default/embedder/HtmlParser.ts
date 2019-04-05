@@ -9,7 +9,7 @@ import * as xmldom from "xmldom";
 import { Log } from "../../../Log";
 import { DefaultRendererLocalization } from "../DefaultRendererLocalization";
 
-import { validate_account_name } from "./ChainValidation";
+import { AccountNameValidator } from "./AccountNameValidator";
 import linksRe, { any as linksAny } from "./Links";
 import * as Phishing from "./Phishing";
 
@@ -261,7 +261,7 @@ export class HtmlParser {
             /(^|[^a-zA-Z0-9_!#$%&*@＠\/]|(^|[^a-zA-Z0-9_+~.-\/#]))[@＠]([a-z][-\.a-z\d]+[a-z\d])/gi,
             (match, preceeding1, preceeding2, user) => {
                 const userLower = user.toLowerCase();
-                const valid = validate_account_name(userLower) == null;
+                const valid = AccountNameValidator.validateAccountName(userLower, this.localization) == null;
 
                 if (valid && usertags) {
                     usertags.add(userLower);
