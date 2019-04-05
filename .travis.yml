@@ -18,11 +18,13 @@ script:
   - npm run test
   - node sample/demo.js
 
-deploy:
-  - provider: script
-    script: npx semantic-release
-    skip_cleanup: true
-    on:
-      tags: false
-      all_branches: true
-    node_js: "10"
+jobs:
+  include:
+    - stage: deploy
+      provider: script
+      script: npx semantic-release
+      skip_cleanup: true
+      on:
+        tags: false
+        all_branches: true
+      node_js: "10"
