@@ -81,7 +81,10 @@
     "url": "https://github.com/wise-team/steem-content-renderer"
   },
   "keywords": [
-    "log"
+    "steem",
+    "markdown",
+    "renderer",
+    "blockchain"
   ],
   "author": "The Wise Team (https://wise-team.io/)",
   "contributors": [
