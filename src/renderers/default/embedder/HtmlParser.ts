@@ -9,9 +9,9 @@ import * as xmldom from "xmldom";
 import { Log } from "../../../Log";
 import { DefaultRendererLocalization } from "../DefaultRendererLocalization";
 
-import { AccountNameValidator } from "./AccountNameValidator";
-import linksRe, { any as linksAny } from "./Links";
-import * as Phishing from "./Phishing";
+import { AccountNameValidator } from "./utils/AccountNameValidator";
+import linksRe, { any as linksAny } from "./utils/Links";
+import * as Phishing from "./utils/Phishing";
 
 export class HtmlParser {
     private options: HtmlParser.Options;
@@ -57,21 +57,8 @@ export class HtmlParser {
     public parse(html: string): HtmlParser {
         try {
             const doc: Document = this.domParser.parseFromString(html, "text/html");
-            this.traverse(doc);
-            if (this.mutate) {
-                if (this.options.hideImages) {
-                    for (const image of Array.from(doc.getElementsByTagName("img"))) {
-                        const pre = doc.createElement("pre");
-                        pre.setAttribute("class", "image-url-only");
-                        pre.appendChild(doc.createTextNode(image.getAttribute("src") || ""));
-                        if (image.parentNode) {
-                            image.parentNode.replaceChild(pre, image);
-                        }
-                    }
-                } else {
-                    this.proxifyImages(doc);
-                }
-            }
+            this.traverseDOMNode(doc);
+            if (this.mutate) this.postprocessDOM(doc);
             this.parsedDocument = doc;
         } catch (error) {
             throw new HtmlParser.HtmlParserError("Parsing error", error);
@@ -94,33 +81,32 @@ export class HtmlParser {
         return this.xmlSerializer.serializeToString(this.getParsedDocument());
     }
 
-    private traverse(node: ChildNode | Document, depth = 0) {
+    private traverseDOMNode(node: ChildNode | Document, depth = 0) {
         if (!node || !node.childNodes) {
             return;
         }
 
         Array.from(node.childNodes).forEach(child => {
-            // console.log(depth, 'child.tag,data', child.tagName, child.data)
             const tag = (child as any).tagName ? (child as any).tagName.toLowerCase() : null;
             if (tag) {
                 this.state.htmltags.add(tag);
             }
 
             if (tag === "img") {
-                this.img(child);
+                this.processImgTag(child);
             } else if (tag === "iframe") {
-                this.iframe(child);
+                this.processIframeTag(child);
             } else if (tag === "a") {
-                this.link(child);
+                this.processLinkTag(child);
             } else if (child.nodeName === "#text") {
-                this.linkifyNode(child);
+                this.processTextNode(child);
             }
 
-            this.traverse(child, depth + 1);
+            this.traverseDOMNode(child, depth + 1);
         });
     }
 
-    private link(child: Node) {
+    private processLinkTag(child: Node) {
         const url = (child as any).getAttribute("href");
         if (url) {
             this.state.links.add(url);
@@ -131,12 +117,7 @@ export class HtmlParser {
                 }
 
                 // Unlink potential phishing attempts
-                if (
-                    (url.indexOf("#") !== 0 && // Allow in-page links
-                        ((child as any).textContent.match(/(www\.)?steemit\.com/i) &&
-                            !url.match(/https?:\/\/(.*@)?(www\.)?steemit\.com/i))) ||
-                    Phishing.looksPhishy(url)
-                ) {
+                if (this.options.phishingUrlTestFn(url) || Phishing.looksPhishy(url)) {
                     const phishyDiv = (child as any).ownerDocument.createElement("div");
                     phishyDiv.textContent = `${child.textContent} / ${url}`;
                     phishyDiv.setAttribute("title", this.localization.phishingWarning);
@@ -148,7 +129,7 @@ export class HtmlParser {
     }
 
     // wrap iframes in div.videoWrapper to control size/aspect ratio
-    private iframe(child: any) {
+    private processIframeTag(child: any) {
         const url = child.getAttribute("src");
         if (url) {
             const { images, links } = this.state;
@@ -171,7 +152,7 @@ export class HtmlParser {
         child.parentNode.replaceChild(this.domParser.parseFromString(`<div class="videoWrapper">${html}</div>`), child);
     }
 
-    private img(child: any) {
+    private processImgTag(child: any) {
         const url = child.getAttribute("src");
         if (url) {
             this.state.images.add(url);
@@ -188,20 +169,7 @@ export class HtmlParser {
         }
     }
 
-    // For all img elements with non-local URLs, prepend the proxy URL (e.g. `https://img0.steemit.com/0x0/`)
-    private proxifyImages(doc: Document) {
-        if (!doc) {
-            return;
-        }
-        Array.from(doc.getElementsByTagName("img")).forEach(node => {
-            const url: string = node.getAttribute("src") || "";
-            if (!linksRe.local.test(url)) {
-                node.setAttribute("src", this.options.imageProxyFn(url));
-            }
-        });
-    }
-
-    private linkifyNode(child: any) {
+    private processTextNode(child: any) {
         try {
             const tag = child.parentNode.tagName ? child.parentNode.tagName.toLowerCase() : child.parentNode.tagName;
             if (tag === "code") {
@@ -303,6 +271,43 @@ export class HtmlParser {
             return `<a href="${this.normalizeUrl(ln)}">${ln}</a>`;
         });
         return content;
+    }
+
+    private postprocessDOM(doc: Document) {
+        this.hideImagesIfNeeded(doc);
+        this.proxifyImagesIfNeeded(doc);
+    }
+
+    private hideImagesIfNeeded(doc: Document) {
+        if (this.mutate && this.options.hideImages) {
+            for (const image of Array.from(doc.getElementsByTagName("img"))) {
+                const pre = doc.createElement("pre");
+                pre.setAttribute("class", "image-url-only");
+                pre.appendChild(doc.createTextNode(image.getAttribute("src") || ""));
+                if (image.parentNode) {
+                    image.parentNode.replaceChild(pre, image);
+                }
+            }
+        }
+    }
+
+    private proxifyImagesIfNeeded(doc: Document) {
+        if (this.mutate && !this.options.hideImages) {
+            this.proxifyImages(doc);
+        }
+    }
+
+    // For all img elements with non-local URLs, prepend the proxy URL (e.g. `https://img0.steemit.com/0x0/`)
+    private proxifyImages(doc: Document) {
+        if (!doc) {
+            return;
+        }
+        Array.from(doc.getElementsByTagName("img")).forEach(node => {
+            const url: string = node.getAttribute("src") || "";
+            if (!linksRe.local.test(url)) {
+                node.setAttribute("src", this.options.imageProxyFn(url));
+            }
+        });
     }
 
     private embedYouTubeNode(child: any) {
@@ -438,6 +443,7 @@ export namespace HtmlParser {
         imageProxyFn: (url: string) => string;
         hashtagUrlFn: (hashtag: string) => string;
         usertagUrlFn: (account: string) => string;
+        phishingUrlTestFn: (url: string) => boolean;
         hideImages: boolean;
     }
 
@@ -448,6 +454,7 @@ export namespace HtmlParser {
             ow(o.imageProxyFn, "HtmlParser.Options.imageProxyFn", ow.function);
             ow(o.hashtagUrlFn, "HtmlParser.Options.hashtagUrlFn", ow.function);
             ow(o.usertagUrlFn, "HtmlParser.Options.usertagUrlFn", ow.function);
+            ow(o.phishingUrlTestFn, "HtmlParser.Options.phishingUrlTestFn", ow.function);
             ow(o.hideImages, "HtmlParser.Options.hideImages", ow.boolean);
         }
     }
@@ -466,6 +473,10 @@ export namespace HtmlParser {
         }
     }
 }
+
+/*
+
+*/
 
 /****************
  * Legacy docs of HtmlReady:

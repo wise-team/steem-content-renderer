@@ -3,8 +3,6 @@
  */
 // tslint:disable variable-name prefer-for-of
 
-import { PARAM_VIEW_MODE, VIEW_MODE_WHISTLE } from "./constants";
-
 const urlChar = '[^\\s"<>\\]\\[\\(\\)]';
 const urlCharEnd = urlChar.replace(/\]$/, ".,']"); // insert bad chars to end on
 const imagePath = "(?:(?:\\.(?:tiff?|jpe?g|gif|png|svg|ico)|ipfs/[a-z\\d]{40,}))";
@@ -74,25 +72,6 @@ export const makeParams = (params: string[], prefix: string | false) => {
     }
     if (paramsList.length > 0) {
         return (prefix !== false ? (typeof prefix === "string" ? prefix : "?") : "") + paramsList.join("&");
-    }
-    return "";
-};
-
-/**
- *
- * @param {string} search - window.location.search formatted string (may omit '?')
- * @returns {string}
- */
-export const determineViewMode = (search: string) => {
-    const searchList = search.indexOf("?") === 0 ? search.substr(1).split("&") : search.split("&");
-    for (let i = 0; i < searchList.length; i++) {
-        if (searchList[i].indexOf(PARAM_VIEW_MODE) === 0) {
-            if (searchList[i] === PARAM_VIEW_MODE + "=" + VIEW_MODE_WHISTLE) {
-                // we only want to support known view modes.
-                return VIEW_MODE_WHISTLE;
-            }
-            return "";
-        }
     }
     return "";
 };

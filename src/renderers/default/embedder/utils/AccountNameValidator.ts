@@ -1,7 +1,7 @@
 /**
  * Based on: https://raw.githubusercontent.com/steemit/condenser/master/src/app/utils/ChainValidation.js
  */
-import { DefaultRendererLocalization } from "../DefaultRendererLocalization";
+import { DefaultRendererLocalization } from "../../DefaultRendererLocalization";
 
 import BadActorList from "./BadActorList";
 
