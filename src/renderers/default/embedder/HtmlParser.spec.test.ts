@@ -15,6 +15,9 @@ describe("htmlready", () => {
         imageProxyFn: (url: string) => url,
         usertagUrlFn: (account: string) => `/@${account}`,
         hashtagUrlFn: (hashtag: string) => `/trending/${hashtag}`,
+        phishingUrlTestFn: (url: string) => (url.indexOf("#") !== 0 && // Allow in-page links
+            ((child as any).textContent.match(/(www\.)?steemit\.com/i) &&
+                !url.match(/https?:\/\/(.*@)?(www\.)?steemit\.com/i)))
         hideImages: false,
     };
 

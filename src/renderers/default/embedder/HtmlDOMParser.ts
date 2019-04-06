@@ -2,19 +2,21 @@
  * Based on: https://github.com/steemit/condenser/raw/master/src/shared/HtmlReady.js
  */
 // tslint:disable max-classes-per-file
-import ow from "ow";
 import { CustomError } from "universe-log";
 import * as xmldom from "xmldom";
 
 import { Log } from "../../../Log";
 import { DefaultRendererLocalization } from "../DefaultRendererLocalization";
 
+import { AssetEmbedderOptions } from "./AssetEmbedderOptions";
 import { AccountNameValidator } from "./utils/AccountNameValidator";
 import linksRe, { any as linksAny } from "./utils/Links";
 import * as Phishing from "./utils/Phishing";
+import { VideoEmbedders } from "./videoembedders/VideoEmbedders";
+import { YoutubeEmbedder } from "./videoembedders/YoutubeEmbedder";
 
-export class HtmlParser {
-    private options: HtmlParser.Options;
+export class HtmlDOMParser {
+    private options: AssetEmbedderOptions;
     private localization: DefaultRendererLocalization;
 
     private domParser = new xmldom.DOMParser({
@@ -28,15 +30,15 @@ export class HtmlParser {
         },
     });
     private xmlSerializer = new xmldom.XMLSerializer();
-    private state: HtmlParser.State;
+    private state: HtmlDOMParser.State;
     private mutate = true;
     private parsedDocument: Document | undefined = undefined;
 
     public constructor(
-        options: HtmlParser.Options,
+        options: AssetEmbedderOptions,
         localization: DefaultRendererLocalization = DefaultRendererLocalization.DEFAULT,
     ) {
-        HtmlParser.Options.validate(options);
+        AssetEmbedderOptions.validate(options);
         this.options = options;
         this.localization = localization;
 
@@ -49,31 +51,31 @@ export class HtmlParser {
         };
     }
 
-    public setMutateEnabled(mutate: boolean): HtmlParser {
+    public setMutateEnabled(mutate: boolean): HtmlDOMParser {
         this.mutate = mutate;
         return this;
     }
 
-    public parse(html: string): HtmlParser {
+    public parse(html: string): HtmlDOMParser {
         try {
             const doc: Document = this.domParser.parseFromString(html, "text/html");
             this.traverseDOMNode(doc);
             if (this.mutate) this.postprocessDOM(doc);
             this.parsedDocument = doc;
         } catch (error) {
-            throw new HtmlParser.HtmlParserError("Parsing error", error);
+            throw new HtmlDOMParser.HtmlDOMParserError("Parsing error", error);
         }
 
         return this;
     }
 
-    public getState(): HtmlParser.State {
-        if (!this.parsedDocument) throw new HtmlParser.HtmlParserError("Html has not been parsed yet");
+    public getState(): HtmlDOMParser.State {
+        if (!this.parsedDocument) throw new HtmlDOMParser.HtmlDOMParserError("Html has not been parsed yet");
         return this.state;
     }
 
     public getParsedDocument(): Document {
-        if (!this.parsedDocument) throw new HtmlParser.HtmlParserError("Html has not been parsed yet");
+        if (!this.parsedDocument) throw new HtmlDOMParser.HtmlDOMParserError("Html has not been parsed yet");
         return this.parsedDocument;
     }
 
@@ -99,7 +101,7 @@ export class HtmlParser {
             } else if (tag === "a") {
                 this.processLinkTag(child);
             } else if (child.nodeName === "#text") {
-                this.processTextNode(child);
+                this.processTextNode(child as HTMLObjectElement);
             }
 
             this.traverseDOMNode(child, depth + 1);
@@ -131,14 +133,7 @@ export class HtmlParser {
     // wrap iframes in div.videoWrapper to control size/aspect ratio
     private processIframeTag(child: any) {
         const url = child.getAttribute("src");
-        if (url) {
-            const { images, links } = this.state;
-            const yt = this.youTubeId(url);
-            if (yt && images && links) {
-                links.add(yt.url);
-                images.add("https://img.youtube.com/vi/" + yt.id + "/0.jpg");
-            }
-        }
+        if (url) this.reportIframeLink(url);
 
         if (!this.mutate) {
             return;
@@ -150,6 +145,14 @@ export class HtmlParser {
         }
         const html = this.xmlSerializer.serializeToString(child);
         child.parentNode.replaceChild(this.domParser.parseFromString(`<div class="videoWrapper">${html}</div>`), child);
+    }
+
+    private reportIframeLink(url: string) {
+        const yt = YoutubeEmbedder.getYoutubeMetadataFromLink(url);
+        if (yt) {
+            this.state.links.add(yt.url);
+            this.state.images.add("https://img.youtube.com/vi/" + yt.id + "/0.jpg");
+        }
     }
 
     private processImgTag(child: any) {
@@ -169,9 +172,11 @@ export class HtmlParser {
         }
     }
 
-    private processTextNode(child: any) {
+    private processTextNode(child: HTMLObjectElement) {
         try {
-            const tag = child.parentNode.tagName ? child.parentNode.tagName.toLowerCase() : child.parentNode.tagName;
+            const tag = (child.parentNode as any).tagName
+                ? (child.parentNode as any).tagName.toLowerCase()
+                : (child.parentNode as any).tagName;
             if (tag === "code") {
                 return;
             }
@@ -182,21 +187,16 @@ export class HtmlParser {
             if (!child.data) {
                 return;
             }
-            child = this.embedYouTubeNode(child);
-            child = this.embedVimeoNode(child);
-            child = this.embedTwitchNode(child);
+
+            const embedResp = VideoEmbedders.processTextNodeAndInsertEmbeds(child);
+            embedResp.images.forEach(img => this.state.images.add(img));
+            embedResp.links.forEach(link => this.state.links.add(link));
 
             const data = this.xmlSerializer.serializeToString(child);
-            const content = this.linkify(
-                data,
-                this.state.hashtags,
-                this.state.usertags,
-                this.state.images,
-                this.state.links,
-            );
+            const content = this.linkify(data);
             if (this.mutate && content !== data) {
                 const newChild = this.domParser.parseFromString(`<span>${content}</span>`);
-                child.parentNode.replaceChild(newChild, child);
+                (child.parentNode as any).replaceChild(newChild, child);
                 return newChild;
             }
         } catch (error) {
@@ -204,7 +204,7 @@ export class HtmlParser {
         }
     }
 
-    private linkify(content: string, hashtags: any, usertags: any, images: any, links: any) {
+    private linkify(content: string) {
         // hashtag
         content = content.replace(/(^|\s)(#[-a-z\d]+)/gi, tag => {
             if (/#[\d]+$/.test(tag)) {
@@ -213,9 +213,7 @@ export class HtmlParser {
             const space = /^\s/.test(tag) ? tag[0] : "";
             const tag2 = tag.trim().substring(1);
             const tagLower = tag2.toLowerCase();
-            if (hashtags) {
-                hashtags.add(tagLower);
-            }
+            this.state.hashtags.add(tagLower);
             if (!this.mutate) {
                 return tag;
             }
@@ -231,8 +229,8 @@ export class HtmlParser {
                 const userLower = user.toLowerCase();
                 const valid = AccountNameValidator.validateAccountName(userLower, this.localization) == null;
 
-                if (valid && usertags) {
-                    usertags.add(userLower);
+                if (valid && this.state.usertags) {
+                    this.state.usertags.add(userLower);
                 }
 
                 // include the preceeding matches if they exist
@@ -249,9 +247,7 @@ export class HtmlParser {
 
         content = content.replace(linksAny("gi"), ln => {
             if (linksRe.image.test(ln)) {
-                if (images) {
-                    images.add(ln);
-                }
+                this.state.images.add(ln);
                 return `<img src="${this.normalizeUrl(ln)}" />`;
             }
 
@@ -265,9 +261,7 @@ export class HtmlParser {
                 return `<div title='${this.localization.phishingWarning}' class='phishy'>${ln}</div>`;
             }
 
-            if (links) {
-                links.add(ln);
-            }
+            this.state.links.add(ln);
             return `<a href="${this.normalizeUrl(ln)}">${ln}</a>`;
         });
         return content;
@@ -310,120 +304,6 @@ export class HtmlParser {
         });
     }
 
-    private embedYouTubeNode(child: any) {
-        try {
-            const data = child.data;
-            const yt = this.youTubeId(data);
-            if (!yt) {
-                return child;
-            }
-
-            child.data = data.replace(yt.url, `~~~ embed:${yt.id} youtube ~~~`);
-
-            this.state.links.add(yt.url);
-            this.state.images.add(yt.thumbnail);
-        } catch (error) {
-            Log.log().error(error);
-        }
-        return child;
-    }
-
-    /** @return {id, url} or <b>null</b> */
-    private youTubeId(data: any) {
-        if (!data) {
-            return null;
-        }
-
-        const m1 = data.match(linksRe.youTube);
-        const url = m1 ? m1[0] : null;
-        if (!url) {
-            return null;
-        }
-
-        const m2 = url.match(linksRe.youTubeId);
-        const id = m2 && m2.length >= 2 ? m2[1] : null;
-        if (!id) {
-            return null;
-        }
-
-        return {
-            id,
-            url,
-            thumbnail: "https://img.youtube.com/vi/" + id + "/0.jpg",
-        };
-    }
-
-    private embedVimeoNode(child: any) {
-        try {
-            const data = child.data;
-            const vimeo = this.vimeoId(data);
-            if (!vimeo) {
-                return child;
-            }
-
-            child.data = data.replace(vimeo.url, `~~~ embed:${vimeo.id} vimeo ~~~`);
-
-            this.state.links.add(vimeo.canonical);
-            // if(images) images.add(vimeo.thumbnail) // not available
-        } catch (error) {
-            Log.log().error(error);
-        }
-        return child;
-    }
-
-    private vimeoId(data: any) {
-        if (!data) {
-            return null;
-        }
-        const m = data.match(linksRe.vimeo);
-        if (!m || m.length < 2) {
-            return null;
-        }
-
-        return {
-            id: m[1],
-            url: m[0],
-            canonical: `https://player.vimeo.com/video/${m[1]}`,
-            // thumbnail: requires a callback - http://stackoverflow.com/questions/1361149/get-img-thumbnails-from-vimeo
-        };
-    }
-
-    private embedTwitchNode(child: any) {
-        try {
-            const data = child.data;
-            const twitch = this.twitchId(data);
-            if (!twitch) {
-                return child;
-            }
-
-            child.data = data.replace(twitch.url, `~~~ embed:${twitch.id} twitch ~~~`);
-
-            this.state.links.add(twitch.canonical);
-        } catch (error) {
-            Log.log().error(error);
-        }
-        return child;
-    }
-
-    private twitchId(data: any) {
-        if (!data) {
-            return null;
-        }
-        const m = data.match(linksRe.twitch);
-        if (!m || m.length < 3) {
-            return null;
-        }
-
-        return {
-            id: m[1] === `videos` ? `?video=${m[2]}` : `?channel=${m[2]}`,
-            url: m[0],
-            canonical:
-                m[1] === `videos`
-                    ? `https://player.twitch.tv/?video=${m[2]}`
-                    : `https://player.twitch.tv/?channel=${m[2]}`,
-        };
-    }
-
     private normalizeUrl(url: any) {
         if (this.options.ipfsPrefix) {
             // Convert //ipfs/xxx  or /ipfs/xxx  into  https://steemit.com/ipfs/xxxxx
@@ -437,28 +317,7 @@ export class HtmlParser {
     }
 }
 
-export namespace HtmlParser {
-    export interface Options {
-        ipfsPrefix: string;
-        imageProxyFn: (url: string) => string;
-        hashtagUrlFn: (hashtag: string) => string;
-        usertagUrlFn: (account: string) => string;
-        phishingUrlTestFn: (url: string) => boolean;
-        hideImages: boolean;
-    }
-
-    export namespace Options {
-        export function validate(o: Options) {
-            ow(o, "HtmlParser.Options", ow.object);
-            ow(o.ipfsPrefix, "HtmlParser.Options.ipfsPrefix", ow.string);
-            ow(o.imageProxyFn, "HtmlParser.Options.imageProxyFn", ow.function);
-            ow(o.hashtagUrlFn, "HtmlParser.Options.hashtagUrlFn", ow.function);
-            ow(o.usertagUrlFn, "HtmlParser.Options.usertagUrlFn", ow.function);
-            ow(o.phishingUrlTestFn, "HtmlParser.Options.phishingUrlTestFn", ow.function);
-            ow(o.hideImages, "HtmlParser.Options.hideImages", ow.boolean);
-        }
-    }
-
+export namespace HtmlDOMParser {
     export interface State {
         hashtags: Set<string>;
         usertags: Set<string>;
@@ -467,7 +326,7 @@ export namespace HtmlParser {
         links: Set<string>;
     }
 
-    export class HtmlParserError extends CustomError {
+    export class HtmlDOMParserError extends CustomError {
         public constructor(message?: string, cause?: Error) {
             super(message, cause);
         }
