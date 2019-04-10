@@ -24,7 +24,7 @@ export const any = (flags = "i") => new RegExp(urlSet(), flags);
 export const local = (flags = "i") => new RegExp(urlSet({ domain: "(?:localhost|(?:.*\\.)?steemit.com)" }), flags);
 export const remote = (flags = "i") =>
     new RegExp(urlSet({ domain: `(?!localhost|(?:.*\\.)?steemit.com)${domainPath}` }), flags);
-export const youTube = (flags = "i") => new RegExp(urlSet({ domain: "(?:(?:.*.)?youtube.com|youtu.be)" }), flags);
+export const youTube = (flags = "i") => new RegExp(urlSet({ domain: "(?:(?:.*.)?(youtube\\.com|youtu\\.be))" }), flags);
 export const image = (flags = "i") => new RegExp(urlSet({ path: imagePath }), flags);
 export const imageFile = (flags = "i") => new RegExp(imagePath, flags);
 // export const nonImage = (flags = 'i') => new RegExp(urlSet({path: '!' + imageFile}), flags)

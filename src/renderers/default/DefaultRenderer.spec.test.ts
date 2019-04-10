@@ -9,6 +9,7 @@ import { DefaultRenderer } from "./DefaultRenderer";
 
 describe("DefaultRender", () => {
     const defaultOptions: DefaultRenderer.Options = {
+        baseUrl: "https://steemit.com/",
         breaks: true,
         skipSanitization: false,
         addNofollowToLinks: true,
@@ -19,6 +20,7 @@ describe("DefaultRender", () => {
         imageProxyFn: (url: string) => url,
         usertagUrlFn: (account: string) => `/@${account}`,
         hashtagUrlFn: (hashtag: string) => `/trending/${hashtag}`,
+        isLinkSafeFn: (url: string) => true, // !!url.match(/^(\/(?!\/)|https:\/\/steemit.com)/),
     };
 
     const tests = [
@@ -46,20 +48,31 @@ describe("DefaultRender", () => {
             expected:
                 '<div class="videoWrapper"><iframe frameborder="0" allowfullscreen="allowfullscreen" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen" src="https://player.vimeo.com/video/174544848" width="640" height="480"></iframe></div>',
         },
+        {
+            name: "Embeds correctly youtube video via paste",
+            raw:
+                '<iframe width="560" height="315" src="https://www.youtube.com/embed/0nFkmd-A7jA" frameborder="0" allowfullscreen></iframe>',
+            expected:
+                '<div class="videoWrapper"><iframe width="640" height="480" src="https://www.youtube.com/embed/0nFkmd-A7jA" allowfullscreen="allowfullscreen" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen" frameborder="0"></iframe></div>',
+        },
+        {
+            name: "Embeds correctly youtube video via youtube.com link",
+            raw: "https://www.youtube.com/embed/0nFkmd-A7jA",
+            expected:
+                '<p><div class="videoWrapper"><iframe width="640" height="480" src="https://www.youtube.com/embed/0nFkmd-A7jA" allowfullscreen="allowfullscreen" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen" frameborder="0"></iframe></div></p>',
+        },
+        {
+            name: "Embeds correctly youtube video via youtu.be link",
+            raw: "https://www.youtu.be/0nFkmd-A7jA",
+            expected:
+                '<p><div class="videoWrapper"><iframe width="640" height="480" src="https://www.youtube.com/embed/0nFkmd-A7jA" allowfullscreen="allowfullscreen" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen" frameborder="0"></iframe></div></p>',
+        },
     ];
 
     tests.forEach(test =>
         it(test.name, () => {
             const renderer = new DefaultRenderer(defaultOptions);
             const rendered = renderer.render(test.raw).trim();
-
-            console.log("=========== RENDERED ============");
-            console.log(rendered);
-            console.log();
-
-            console.log("=========== EXPECTED ============");
-            console.log(test.expected);
-            console.log();
 
             const renderedNode = JSDOM.fragment(rendered);
             const comparisonNode = JSDOM.fragment(test.expected);

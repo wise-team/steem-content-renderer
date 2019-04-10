@@ -28,6 +28,7 @@ export class DefaultRenderer {
                 iframeHeight: this.options.assetsHeight,
                 addNofollowToLinks: this.options.addNofollowToLinks,
                 noImage: this.options.doNotShowImages,
+                isLinkSafeFn: this.options.isLinkSafeFn,
             },
             localization,
         );
@@ -41,6 +42,7 @@ export class DefaultRenderer {
                 imageProxyFn: this.options.imageProxyFn,
                 hashtagUrlFn: this.options.hashtagUrlFn,
                 usertagUrlFn: this.options.usertagUrlFn,
+                baseUrl: this.options.baseUrl,
             },
             localization,
         );
@@ -110,6 +112,7 @@ export class DefaultRenderer {
 
 export namespace DefaultRenderer {
     export interface Options {
+        baseUrl: string;
         breaks: boolean;
         skipSanitization: boolean;
         addNofollowToLinks: boolean;
@@ -120,10 +123,12 @@ export namespace DefaultRenderer {
         imageProxyFn: (url: string) => string;
         hashtagUrlFn: (hashtag: string) => string;
         usertagUrlFn: (account: string) => string;
+        isLinkSafeFn: (url: string) => boolean;
     }
 
     export namespace Options {
         export function validate(o: Options) {
+            ow(o.baseUrl, "Options.baseUrl", ow.string.nonEmpty);
             ow(o.breaks, "Options.breaks", ow.boolean);
             ow(o.skipSanitization, "Options.skipSanitization", ow.boolean);
             ow(o.addNofollowToLinks, "Options.addNofollowToLinks", ow.boolean);
@@ -134,6 +139,7 @@ export namespace DefaultRenderer {
             ow(o.imageProxyFn, "Options.imageProxyFn", ow.function);
             ow(o.hashtagUrlFn, "Options.hashtagUrlFn", ow.function);
             ow(o.usertagUrlFn, "Options.usertagUrlFn", ow.function);
+            ow(o.isLinkSafeFn, "TagTransformingSanitizer.Options.isLinkSafeFn", ow.function);
         }
     }
 }

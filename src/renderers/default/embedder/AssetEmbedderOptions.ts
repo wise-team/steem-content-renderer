@@ -5,6 +5,7 @@ export interface AssetEmbedderOptions {
     width: number;
     height: number;
     hideImages: boolean;
+    baseUrl: string;
     imageProxyFn: (url: string) => string;
     hashtagUrlFn: (hashtag: string) => string;
     usertagUrlFn: (account: string) => string;
@@ -16,6 +17,7 @@ export namespace AssetEmbedderOptions {
         ow(o.width, "AssetEmbedderOptions.width", ow.number.integer.positive);
         ow(o.height, "AssetEmbedderOptions.height", ow.number.integer.positive);
         ow(o.hideImages, "AssetEmbedderOptions.hideImages", ow.boolean);
+        ow(o.baseUrl, "AssetEmbedderOptions.baseUrl", ow.string.nonEmpty);
         ow(o.imageProxyFn, "AssetEmbedderOptions.imageProxyFn", ow.function);
         ow(o.hashtagUrlFn, "AssetEmbedderOptions.hashtagUrlFn", ow.function);
         ow(o.usertagUrlFn, "AssetEmbedderOptions.usertagUrlFn", ow.function);

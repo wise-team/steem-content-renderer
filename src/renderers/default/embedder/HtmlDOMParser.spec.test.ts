@@ -7,30 +7,31 @@ import { expect } from "chai";
 import "mocha";
 
 /* global describe, it, before, beforeEach, after, afterEach */
-import { HtmlParser } from "./HtmlParser";
+import { AssetEmbedderOptions } from "./AssetEmbedderOptions";
+import { HtmlDOMParser } from "./HtmlDOMParser";
 
-describe("htmlready", () => {
-    const htmlParserOptions: HtmlParser.Options = {
+describe("HtmlDOMParser", () => {
+    const htmlParserOptions: AssetEmbedderOptions = {
         ipfsPrefix: "",
         imageProxyFn: (url: string) => url,
         usertagUrlFn: (account: string) => `/@${account}`,
         hashtagUrlFn: (hashtag: string) => `/trending/${hashtag}`,
-        phishingUrlTestFn: (url: string) => (url.indexOf("#") !== 0 && // Allow in-page links
-            ((child as any).textContent.match(/(www\.)?steemit\.com/i) &&
-                !url.match(/https?:\/\/(.*@)?(www\.)?steemit\.com/i)))
+        baseUrl: "https://steemit.com/",
+        width: 640,
+        height: 480,
         hideImages: false,
     };
 
     /*it("should return an empty string if input cannot be parsed", () => {
         const teststring = "teststring lol"; // this string causes the xmldom parser to fail & error out
-        const parser = new HtmlParser(htmlParserOptions);
+        const parser = new HtmlDOMParser(htmlParserOptions);
         expect(parser.parse(teststring).getParsedDocumentAsString()).to.equal("");
     });*/
 
     it("should allow links where the text portion and href contains steemit.com", () => {
         const dirty =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://steemit.com/signup" xmlns="http://www.w3.org/1999/xhtml">https://steemit.com/signup</a></xml>';
-        const parser = new HtmlParser(htmlParserOptions);
+        const parser = new HtmlDOMParser(htmlParserOptions);
         const res = parser.parse(dirty).getParsedDocumentAsString();
         expect(res).to.equal(dirty);
     });
@@ -38,7 +39,7 @@ describe("htmlready", () => {
     it("should allow in-page links ", () => {
         const dirty =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="#some-link" xmlns="http://www.w3.org/1999/xhtml">a link location</a></xml>';
-        const parser = new HtmlParser(htmlParserOptions);
+        const parser = new HtmlDOMParser(htmlParserOptions);
         const res = parser.parse(dirty).getParsedDocumentAsString();
         expect(res).to.equal(dirty);
 
@@ -55,28 +56,28 @@ describe("htmlready", () => {
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://steamit.com/signup" xmlns="http://www.w3.org/1999/xhtml">https://steemit.com/signup</a></xml>';
         const cleansed =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><div title="Link expanded to plain text; beware of a potential phishing attempt" class="phishy">https://steemit.com/signup / https://steamit.com/signup</div></xml>';
-        const res = new HtmlParser(htmlParserOptions).parse(dirty).getParsedDocumentAsString();
+        const res = new HtmlDOMParser(htmlParserOptions).parse(dirty).getParsedDocumentAsString();
         expect(res).to.equal(cleansed);
 
         const cased =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://steamit.com/signup" xmlns="http://www.w3.org/1999/xhtml">https://Steemit.com/signup</a></xml>';
         const cleansedcased =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><div title="Link expanded to plain text; beware of a potential phishing attempt" class="phishy">https://Steemit.com/signup / https://steamit.com/signup</div></xml>';
-        const rescased = new HtmlParser(htmlParserOptions).parse(cased).getParsedDocumentAsString();
+        const rescased = new HtmlDOMParser(htmlParserOptions).parse(cased).getParsedDocumentAsString();
         expect(rescased).to.equal(cleansedcased);
 
         const withuser =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://steamit.com/signup" xmlns="http://www.w3.org/1999/xhtml">https://official@steemit.com/signup</a></xml>';
         const cleansedwithuser =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><div title="Link expanded to plain text; beware of a potential phishing attempt" class="phishy">https://official@steemit.com/signup / https://steamit.com/signup</div></xml>';
-        const reswithuser = new HtmlParser(htmlParserOptions).parse(withuser).getParsedDocumentAsString();
+        const reswithuser = new HtmlDOMParser(htmlParserOptions).parse(withuser).getParsedDocumentAsString();
         expect(reswithuser).to.equal(cleansedwithuser);
 
         const noendingslash =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://steamit.com" xmlns="http://www.w3.org/1999/xhtml">https://steemit.com</a></xml>';
         const cleansednoendingslash =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><div title="Link expanded to plain text; beware of a potential phishing attempt" class="phishy">https://steemit.com / https://steamit.com</div></xml>';
-        const resnoendingslash = new HtmlParser(htmlParserOptions).parse(noendingslash).getParsedDocumentAsString();
+        const resnoendingslash = new HtmlDOMParser(htmlParserOptions).parse(noendingslash).getParsedDocumentAsString();
         expect(resnoendingslash).to.equal(cleansednoendingslash);
 
         // make sure extra-domain in-page links are also caught by our phishy link scan.
@@ -84,7 +85,7 @@ describe("htmlready", () => {
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://steamit.com#really-evil-inpage-component" xmlns="http://www.w3.org/1999/xhtml">https://steemit.com</a></xml>';
         const cleanDomainInpage =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><div title="Link expanded to plain text; beware of a potential phishing attempt" class="phishy">https://steemit.com / https://steamit.com#really-evil-inpage-component</div></xml>';
-        const resDomainInpage = new HtmlParser(htmlParserOptions).parse(domainInpage).getParsedDocumentAsString();
+        const resDomainInpage = new HtmlDOMParser(htmlParserOptions).parse(domainInpage).getParsedDocumentAsString();
         expect(resDomainInpage).to.equal(cleanDomainInpage);
 
         // anchor links including steemit.com should be allowed
@@ -92,14 +93,14 @@ describe("htmlready", () => {
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="#https://steamit.com/unlikelyinpagelink" xmlns="http://www.w3.org/1999/xhtml">Go down lower for https://steemit.com info!</a></xml>';
         const cleanInpage =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="#https://steamit.com/unlikelyinpagelink" xmlns="http://www.w3.org/1999/xhtml">Go down lower for https://steemit.com info!</a></xml>';
-        const resinpage = new HtmlParser(htmlParserOptions).parse(inpage).getParsedDocumentAsString();
+        const resinpage = new HtmlDOMParser(htmlParserOptions).parse(inpage).getParsedDocumentAsString();
         expect(resinpage).to.equal(cleanInpage);
 
         const noprotocol =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://steamit.com/" xmlns="http://www.w3.org/1999/xhtml">for a good time, visit steemit.com today</a></xml>';
         const cleansednoprotocol =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><div title="Link expanded to plain text; beware of a potential phishing attempt" class="phishy">for a good time, visit steemit.com today / https://steamit.com/</div></xml>';
-        const resnoprotocol = new HtmlParser(htmlParserOptions).parse(noprotocol).getParsedDocumentAsString();
+        const resnoprotocol = new HtmlDOMParser(htmlParserOptions).parse(noprotocol).getParsedDocumentAsString();
         expect(resnoprotocol).to.equal(cleansednoprotocol);
     });
 
@@ -107,7 +108,7 @@ describe("htmlready", () => {
         const somanylinks = '<xml xmlns="http://www.w3.org/1999/xhtml">https://foo.com and https://blah.com</xml>';
         const htmlified =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><span><a href="https://foo.com">https://foo.com</a> and <a href="https://blah.com">https://blah.com</a></span></xml>';
-        const res = new HtmlParser(htmlParserOptions).parse(somanylinks).getParsedDocumentAsString();
+        const res = new HtmlDOMParser(htmlParserOptions).parse(somanylinks).getParsedDocumentAsString();
         expect(res).to.equal(htmlified);
     });
 
@@ -115,13 +116,13 @@ describe("htmlready", () => {
         const textwithmentions = '<xml xmlns="http://www.w3.org/1999/xhtml">@username (@a1b2, whatever</xml>';
         const htmlified =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><span><a href="/@username">@username</a> (<a href="/@a1b2">@a1b2</a>, whatever</span></xml>';
-        const res = new HtmlParser(htmlParserOptions).parse(textwithmentions).getParsedDocumentAsString();
+        const res = new HtmlDOMParser(htmlParserOptions).parse(textwithmentions).getParsedDocumentAsString();
         expect(res).to.equal(htmlified);
     });
 
     it("should detect only valid mentions", () => {
         const textwithmentions = "@abc @xx (@aaa1) @_x @eee, @fff! https://x.com/@zzz/test";
-        const res = new HtmlParser(htmlParserOptions)
+        const res = new HtmlDOMParser(htmlParserOptions)
             .setMutateEnabled(false)
             .parse(textwithmentions)
             .getState();
@@ -134,7 +135,7 @@ describe("htmlready", () => {
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://steemit.com/signup">@hihi</a></xml>';
         const htmlified =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://steemit.com/signup">@hihi</a></xml>';
-        const res = new HtmlParser(htmlParserOptions).parse(nameinsidelinkfirst).getParsedDocumentAsString();
+        const res = new HtmlDOMParser(htmlParserOptions).parse(nameinsidelinkfirst).getParsedDocumentAsString();
         expect(res).to.equal(htmlified);
     });
 
@@ -143,7 +144,7 @@ describe("htmlready", () => {
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://steemit.com/signup">hi @hihi</a></xml>';
         const htmlified =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://steemit.com/signup">hi @hihi</a></xml>';
-        const res = new HtmlParser(htmlParserOptions).parse(nameinsidelinkmiddle).getParsedDocumentAsString();
+        const res = new HtmlDOMParser(htmlParserOptions).parse(nameinsidelinkmiddle).getParsedDocumentAsString();
         expect(res).to.equal(htmlified);
     });
 
@@ -152,7 +153,7 @@ describe("htmlready", () => {
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="land.com"> zippy </a> </xml>';
         const cleansedRelativeHttpHttpsOrSteem =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://land.com"> zippy </a> </xml>';
-        const resNoRelativeHttpHttpsOrSteem = new HtmlParser(htmlParserOptions)
+        const resNoRelativeHttpHttpsOrSteem = new HtmlDOMParser(htmlParserOptions)
             .parse(noRelativeHttpHttpsOrSteem)
             .getParsedDocumentAsString();
         expect(resNoRelativeHttpHttpsOrSteem).to.equal(cleansedRelativeHttpHttpsOrSteem);
@@ -163,7 +164,7 @@ describe("htmlready", () => {
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="steem://veins.com"> arteries </a> </xml>';
         const cleansedRelativeHttpHttpsOrSteem =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="steem://veins.com"> arteries </a> </xml>';
-        const resNoRelativeHttpHttpsOrSteem = new HtmlParser(htmlParserOptions)
+        const resNoRelativeHttpHttpsOrSteem = new HtmlDOMParser(htmlParserOptions)
             .parse(noRelativeHttpHttpsOrSteem)
             .getParsedDocumentAsString();
         expect(resNoRelativeHttpHttpsOrSteem).to.equal(cleansedRelativeHttpHttpsOrSteem);
@@ -176,7 +177,7 @@ describe("htmlready", () => {
         const suffix = "</xml>";
         const input = prefix + url + suffix;
         const expected = prefix + '<span><a href="' + url + '">' + url + "</a></span>" + suffix;
-        const result = new HtmlParser(htmlParserOptions).parse(input).getParsedDocumentAsString();
+        const result = new HtmlDOMParser(htmlParserOptions).parse(input).getParsedDocumentAsString();
         expect(result).to.equal(expected);
     });
 
@@ -185,7 +186,7 @@ describe("htmlready", () => {
         const prefix = '<xml xmlns="http://www.w3.org/1999/xhtml">';
         const suffix = "</xml>";
         const input = prefix + body + suffix;
-        const result = new HtmlParser(htmlParserOptions).parse(input).getParsedDocumentAsString();
+        const result = new HtmlDOMParser(htmlParserOptions).parse(input).getParsedDocumentAsString();
         expect(result).to.equal(input);
     });
 
@@ -194,7 +195,7 @@ describe("htmlready", () => {
             '<xml xmlns="http://www.w3.org/1999/xhtml"><a href="https://steewit.com/signup" xmlns="http://www.w3.org/1999/xhtml">https://steemit.com/signup</a></xml>';
         const cleansed =
             '<xml xmlns="http://www.w3.org/1999/xhtml"><div title="Link expanded to plain text; beware of a potential phishing attempt" class="phishy">https://steemit.com/signup / https://steewit.com/signup</div></xml>';
-        const res = new HtmlParser(htmlParserOptions).parse(dirty).getParsedDocumentAsString();
+        const res = new HtmlDOMParser(htmlParserOptions).parse(dirty).getParsedDocumentAsString();
         expect(res).to.equal(cleansed);
     });
 
@@ -202,7 +203,7 @@ describe("htmlready", () => {
         const testString = "<html><p>before text https://www.youtube.com/watch?v=NrS9vvNgx7I after text</p></html>";
         const htmlified =
             '<html xmlns="http://www.w3.org/1999/xhtml"><p>before text ~~~ embed:NrS9vvNgx7I youtube ~~~ after text</p></html>';
-        const res = new HtmlParser(htmlParserOptions).parse(testString).getParsedDocumentAsString();
+        const res = new HtmlDOMParser(htmlParserOptions).parse(testString).getParsedDocumentAsString();
         expect(res).to.equal(htmlified);
     });
 
@@ -210,7 +211,7 @@ describe("htmlready", () => {
         const testString = "<html><p>before text https://vimeo.com/193628816/ after text</p></html>";
         const htmlified =
             '<html xmlns="http://www.w3.org/1999/xhtml"><p>before text ~~~ embed:193628816 vimeo ~~~ after text</p></html>';
-        const res = new HtmlParser(htmlParserOptions).parse(testString).getParsedDocumentAsString();
+        const res = new HtmlDOMParser(htmlParserOptions).parse(testString).getParsedDocumentAsString();
         expect(res).to.equal(htmlified);
     });
 });

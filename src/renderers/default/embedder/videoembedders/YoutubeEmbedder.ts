@@ -56,13 +56,16 @@ export class YoutubeEmbedder extends AbstractVideoEmbedder {
         htmlElementKey: string,
     ): string | undefined {
         if (embedType !== YoutubeEmbedder.TYPE) return undefined;
-        return `<YoutubePreview
-                key=${htmlElementKey}
-                width=${size.width}
-                height=${size.height}
-                youTubeId=${id}
-                frameBorder="0"
-                allowFullScreen="true"
-            />`;
+
+        const ytUrl = `https://www.youtube.com/embed/${id}`;
+        return `<div class="videoWrapper"><iframe
+                    width="${size.width}"
+                    height="${size.height}"
+                    src="${ytUrl}"
+                    allowfullscreen="allowfullscreen"
+                    webkitallowfullscreen="webkitallowfullscreen"
+                    mozallowfullscreen="mozallowfullscreen"
+                    frameborder="0"
+                ></iframe></div>`;
     }
 }

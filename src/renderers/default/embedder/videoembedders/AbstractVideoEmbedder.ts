@@ -37,33 +37,13 @@ export abstract class AbstractVideoEmbedder {
                     }
                 }
                 section = section.substring(`${id} ${type} ~~~`.length);
-                // TODO remove
-                /*if (type === "youtube") {
-                    sections.push(
-
-                    );
-                } else if (type === "vimeo") {
-
-                } else if (type === "twitch") {
-
-                } else {
-                    Log.log().warn("MarkdownViewer unknown embed type", type);
-                }*/
-                section = section.substring(`${id} ${type} ~~~`.length);
+                // section = section.substring(`${id} ${type} ~~~`.length);
                 if (section === "") {
                     continue;
                 }
             }
-            sections.push(
-                /*`<div
-                    key=${idx++}
-                    dangerouslySetInnerHTML=${{
-                        __html: section,
-                    }}
-                />`,*/
-                section,
-            );
+            sections.push(section);
         }
-        return sections.join();
+        return sections.join("");
     }
 }

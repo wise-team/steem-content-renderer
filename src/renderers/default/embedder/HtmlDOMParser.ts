@@ -6,18 +6,19 @@ import { CustomError } from "universe-log";
 import * as xmldom from "xmldom";
 
 import { Log } from "../../../Log";
+import { LinkSanitizer } from "../../../security/LinkSanitizer";
 import { DefaultRendererLocalization } from "../DefaultRendererLocalization";
 
 import { AssetEmbedderOptions } from "./AssetEmbedderOptions";
 import { AccountNameValidator } from "./utils/AccountNameValidator";
 import linksRe, { any as linksAny } from "./utils/Links";
-import * as Phishing from "./utils/Phishing";
 import { VideoEmbedders } from "./videoembedders/VideoEmbedders";
 import { YoutubeEmbedder } from "./videoembedders/YoutubeEmbedder";
 
 export class HtmlDOMParser {
     private options: AssetEmbedderOptions;
     private localization: DefaultRendererLocalization;
+    private linkSanitizer: LinkSanitizer;
 
     private domParser = new xmldom.DOMParser({
         errorHandler: {
@@ -41,6 +42,9 @@ export class HtmlDOMParser {
         AssetEmbedderOptions.validate(options);
         this.options = options;
         this.localization = localization;
+        this.linkSanitizer = new LinkSanitizer({
+            baseUrl: this.options.baseUrl,
+        });
 
         this.state = {
             hashtags: new Set(),
@@ -83,7 +87,7 @@ export class HtmlDOMParser {
         return this.xmlSerializer.serializeToString(this.getParsedDocument());
     }
 
-    private traverseDOMNode(node: ChildNode | Document, depth = 0) {
+    private traverseDOMNode(node: Document | ChildNode, depth = 0) {
         if (!node || !node.childNodes) {
             return;
         }
@@ -95,11 +99,11 @@ export class HtmlDOMParser {
             }
 
             if (tag === "img") {
-                this.processImgTag(child);
+                this.processImgTag(child as HTMLObjectElement);
             } else if (tag === "iframe") {
-                this.processIframeTag(child);
+                this.processIframeTag(child as HTMLObjectElement);
             } else if (tag === "a") {
-                this.processLinkTag(child);
+                this.processLinkTag(child as HTMLObjectElement);
             } else if (child.nodeName === "#text") {
                 this.processTextNode(child as HTMLObjectElement);
             }
@@ -108,30 +112,29 @@ export class HtmlDOMParser {
         });
     }
 
-    private processLinkTag(child: Node) {
-        const url = (child as any).getAttribute("href");
+    private processLinkTag(child: HTMLObjectElement) {
+        const url = child.getAttribute("href");
         if (url) {
             this.state.links.add(url);
             if (this.mutate) {
-                // If this link is not relative, http, https, or steem -- add https.
-                if (!/^((#)|(\/(?!\/))|(((steem|https?):)?\/\/))/.test(url)) {
-                    (child as any).setAttribute("href", "https://" + url);
-                }
-
                 // Unlink potential phishing attempts
-                if (this.options.phishingUrlTestFn(url) || Phishing.looksPhishy(url)) {
+                const urlTitle = child.textContent + "";
+                const sanitizedLink = this.linkSanitizer.sanitizeLink(url, urlTitle);
+                if (sanitizedLink === false) {
                     const phishyDiv = (child as any).ownerDocument.createElement("div");
                     phishyDiv.textContent = `${child.textContent} / ${url}`;
                     phishyDiv.setAttribute("title", this.localization.phishingWarning);
                     phishyDiv.setAttribute("class", "phishy");
                     (child as any).parentNode.replaceChild(phishyDiv, child);
+                } else {
+                    child.setAttribute("href", sanitizedLink);
                 }
             }
         }
     }
 
     // wrap iframes in div.videoWrapper to control size/aspect ratio
-    private processIframeTag(child: any) {
+    private processIframeTag(child: HTMLObjectElement) {
         const url = child.getAttribute("src");
         if (url) this.reportIframeLink(url);
 
@@ -139,12 +142,17 @@ export class HtmlDOMParser {
             return;
         }
 
-        const tag = child.parentNode.tagName ? child.parentNode.tagName.toLowerCase() : child.parentNode.tagName;
-        if (tag === "div" && child.parentNode.getAttribute("class") === "videoWrapper") {
+        const tag = (child as any).parentNode.tagName
+            ? (child as any).parentNode.tagName.toLowerCase()
+            : (child as any).parentNode.tagName;
+        if (tag === "div" && (child as any).parentNode.getAttribute("class") === "videoWrapper") {
             return;
         }
         const html = this.xmlSerializer.serializeToString(child);
-        child.parentNode.replaceChild(this.domParser.parseFromString(`<div class="videoWrapper">${html}</div>`), child);
+        (child as any).parentNode.replaceChild(
+            this.domParser.parseFromString(`<div class="videoWrapper">${html}</div>`),
+            child,
+        );
     }
 
     private reportIframeLink(url: string) {
@@ -155,7 +163,7 @@ export class HtmlDOMParser {
         }
     }
 
-    private processImgTag(child: any) {
+    private processImgTag(child: HTMLObjectElement) {
         const url = child.getAttribute("src");
         if (url) {
             this.state.images.add(url);
@@ -257,12 +265,14 @@ export class HtmlDOMParser {
             }
 
             // do not linkify phishy links
-            if (Phishing.looksPhishy(ln)) {
+            const sanitizedLink = this.linkSanitizer.sanitizeLink(ln, ln);
+            if (sanitizedLink === false) {
                 return `<div title='${this.localization.phishingWarning}' class='phishy'>${ln}</div>`;
             }
 
-            this.state.links.add(ln);
-            return `<a href="${this.normalizeUrl(ln)}">${ln}</a>`;
+            this.state.links.add(sanitizedLink);
+            const out = `<a href="${this.normalizeUrl(ln)}">${sanitizedLink}</a>`;
+            return out;
         });
         return content;
     }
