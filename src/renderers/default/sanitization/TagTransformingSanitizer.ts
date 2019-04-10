@@ -163,7 +163,7 @@ export class TagTransformingSanitizer {
                     href = href.trim();
                     const attys: sanitize.Attributes = { href };
                     // If it's not a (relative or absolute) steemit URL...
-                    if (!href.match(/^(\/(?!\/)|https:\/\/steemit.com)/)) {
+                    if (!this.options.isLinkSafeFn(href)) {
                         // attys.target = '_blank' // pending iframe impl https://mathiasbynens.github.io/rel-noopener/
                         attys.rel = this.options.addNofollowToLinks ? "nofollow noopener" : "noopener";
                         attys.title = this.localization.phishingWarning;
@@ -185,6 +185,7 @@ export namespace TagTransformingSanitizer {
         iframeHeight: number;
         addNofollowToLinks: boolean;
         noImage: boolean;
+        isLinkSafeFn: (url: string) => boolean;
     }
 
     export namespace Options {
@@ -193,6 +194,7 @@ export namespace TagTransformingSanitizer {
             ow(o.iframeHeight, "TagTransformingSanitizer.Options.iframeHeight", ow.number.integer.positive);
             ow(o.addNofollowToLinks, "TagTransformingSanitizer.Options.addNofollowToLinks", ow.boolean);
             ow(o.noImage, "TagTransformingSanitizer.Options.noImage", ow.boolean);
+            ow(o.isLinkSafeFn, "TagTransformingSanitizer.Options.isLinkSafeFn", ow.function);
         }
     }
 }
