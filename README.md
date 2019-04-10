@@ -24,6 +24,7 @@ $ npm install --save steem-content-renderer
 import { DefaultRenderer } from "steem-content-renderer";
 
 const renderer = new DefaultRenderer({
+    baseUrl: "https://steemit.com/",
     breaks: true,
     skipSanitization: false,
     addNofollowToLinks: true,
@@ -32,8 +33,9 @@ const renderer = new DefaultRenderer({
     assetsWidth: 640,
     assetsHeight: 480,
     imageProxyFn: (url: string) => url,
-    usertagUrlFn: account => "/@" + account,
-    hashtagUrlFn: hashtag => "/trending/" + hashtag,
+    usertagUrlFn: (account: string) => "/@" + account,
+    hashtagUrlFn: (hashtag: string) => "/trending/" + hashtag,
+    isLinkSafeFn: (url: string) => true,
 });
 
 const safeHtmlStr = renderer.render(postContent);

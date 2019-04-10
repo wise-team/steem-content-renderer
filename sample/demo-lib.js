@@ -1,6 +1,7 @@
 const SteemContentRenderer = require("steem-content-renderer");
 
 const renderer = new SteemContentRenderer.DefaultRenderer({
+    baseUrl: "https://steemit.com/",
     breaks: true,
     skipSanitization: false,
     addNofollowToLinks: true,
@@ -11,6 +12,7 @@ const renderer = new SteemContentRenderer.DefaultRenderer({
     imageProxyFn: (url) => url,
     usertagUrlFn: (account) => "/@" + account,
     hashtagUrlFn: (hashtag) => "/trending/" + hashtag,
+    isLinkSafeFn: (url) => true,
 });
 
 const input = `
