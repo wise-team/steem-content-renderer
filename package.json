@@ -15,7 +15,7 @@
     "build:cleanbefore": "rm -rf dist",
     "build:lint": "tslint -c tslint.json -p tsconfig.lint.json",
     "build:node": "tsc",
-    "build:browser": "rm -rf dist/browser/ && webpack --config webpack.config.js",
+    "build:browser": "rm -rf dist/browser/ && NODE_ENV=production webpack -p --config webpack.config.js",
     "build": "npm run build:cleanbefore && npm run build:node && npm run build:lint && npm run build:browser",
     "prepare": "NODE_ENV=production npm run build",
     "test": "find src -name '*.spec.test.ts' | TS_NODE_FILES=true TS_NODE_CACHE=false TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' xargs mocha -r ts-node/register --require source-map-support/register",
