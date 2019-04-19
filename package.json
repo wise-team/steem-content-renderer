@@ -4,6 +4,7 @@
   "description": "Content renderer for Steem posts and comments. Markdown + HTML",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "unpkg": "dist/browser/steem-content-renderer.min.js",
   "engines": {
     "node": ">=8"
   },
