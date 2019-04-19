@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, initial-scale=1.0"/>
-        <title>Steem-content-renderer example</title>
+        <title>Steem-content-renderer live demo</title>
         <style>
             /* source: https://github.com/setetres/evenbettermotherfuckingwebsite */
             body {margin: 5% auto; padding: 0 3rem; background: #f2f2f2; color: #444444; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.8; text-shadow: 0 1px 0 #ffffff; max-width: 800px;}
@@ -11,6 +11,7 @@
             a {border-bottom: 1px solid #444444; color: #444444; text-decoration: none;}
             a:hover {border-bottom: 0;}
             /**/
+            h2, h3, h4, h5 { margin-bottom: 0; }
             #output {
                 border: 1px solid #777;
                 padding: 0.5rem;
@@ -29,8 +30,14 @@
                 font-size: 1.2em;
                 border-radius: 0.5rem 0.5rem;
             }
-            small {
+            .load-post-form {
+                text-align: right;
+            }
+            header small {
                 color: #999;
+            }
+            img {
+                max-width: 100%;
             }
         </style>
     </head>
@@ -39,10 +46,14 @@
             <h1>Steem-content-renderer <small>example</small></h1>
             <aside>
                 This example uses some markdown and transforms it to html. It loads the library 
-                from the unpkg CDN: <em><u>https://unpkg.com/steem-content-renderer</u></em>.
+                from the unpkg CDN: <em><a href="https://unpkg.com/steem-content-renderer">https://unpkg.com/steem-content-renderer</a></em>.
             </aside>
         </header>
-        <h2>The source markdown:</h2>
+
+        <h2>Render markdown:</h2>
+        <div class="load-post-form">
+            Link to post (busy or steemit): <input type="text" id="post-link-input">
+            <button id="load-post-button">Load steem post</button></div>
         <textarea rows="12" style="width: 100%;" id="input">
 # Sample post
 and some content.
@@ -66,6 +77,7 @@ https://youtu.be/B7C83L6iWJQ
             ...press the button...
         </pre>
         
+        <script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
         <script src="https://unpkg.com/jquery"></script>
         <script src="https://unpkg.com/steem-content-renderer"></script>
         <script>
@@ -89,14 +101,62 @@ https://youtu.be/B7C83L6iWJQ
                 const inputElem = $("#input");
                 const outputElem = $("#output");
                 const outputMarkupElem = $("#output-markup");
+                const loadPostButton = $("#load-post-button");
+                const postLinkInput = $("#post-link-input");
 
-                renderMarkdownBtnElem.on("click", () => {
+                function setOutput(output) {
+                    outputElem.html(output);
+                    outputMarkupElem.text(output);
+                }
+
+                function render() {
                     const input = inputElem.val();
                     const output = renderer.render(input);
                     
                     console.log("Rendered", output);
-                    outputElem.html(output);
-                    outputMarkupElem.text(output);
+                    setOutput(output);
+                }
+
+                function getAuthorAndPermlinkFromLink(link) {
+                    let author = "";
+                    let permlink = "";
+                    if (link.length > 0) {
+                        /* tslint:disable max-line-length */
+                        const regex = /^\/?(?:https?:\/\/(?:steemit\.com|busy\.org))?(?:\/?[^\/\n]*\/)?@?([^\/\n]+)\/([^\/\n]+)$/giu;
+                        /* tslint:disable max-line-length */
+                        const match = regex.exec(link);
+                        if (match && match.length > 1) {
+                            author = match[1];
+                            permlink = match[2];
+                        }
+                    }
+                    return { author, permlink };
+                }
+
+                renderMarkdownBtnElem.on("click", () => render());
+
+                loadPostButton.on("click", () => {
+                    const postLink = postLinkInput.val();
+                    const { author, permlink } = getAuthorAndPermlinkFromLink(postLink);
+                    if (!author || author.length === 0 || !permlink || permlink.length === 0) {
+                        inputElem.text("Author or permlink is missing...");
+                        return;
+                    }
+
+                    inputElem.text("Loading post @" + author + "/" + permlink + " ...");
+                    (async () => {
+                        try {
+                            const post = await steem.api.getContentAsync(author, permlink);
+                            const postMarkdown = post.body;
+                            console.log("Content loaded", postMarkdown);
+                            inputElem.text(postMarkdown);
+                            render();
+                        }
+                        catch (error) {
+                            inputElem.text("Error while loading post @" + author + "/" + permlink + ": " + error);
+                        }
+                    })();
+
                 });
             });
         </script>

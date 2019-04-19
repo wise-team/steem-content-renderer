@@ -1,7 +1,7 @@
 # steem-content-renderer
 [![npm](https://img.shields.io/npm/v/steem-content-renderer.svg?style=flat-square)](https://www.npmjs.com/package/steem-content-renderer) [![License](https://img.shields.io/github/license/wise-team/steem-content-renderer.svg?style=flat-square)](https://github.com/wise-team/steem-content-renderer/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![Chat](https://img.shields.io/badge/chat%20on%20discord-6b11ff.svg?style=flat-square)](https://discordapp.com/invite/CwxQDbG)
 
-👉 **[Online demo](https://wise-team.github.io/steem-content-renderer/sample/example-with-cdn.html)**
+👉 **[Online demo](https://wise-team.github.io/steem-content-renderer/sample/live-demo.html)**
 
 Portable library that renders steem posts and comments to string. It supports markdown and html and mimics the behaviour of condenser frontend.
 
@@ -45,7 +45,7 @@ const safeHtmlStr = renderer.render(postContent);
 ```
 
 ## Browser usage:
-See [demo](https://wise-team.github.io/steem-content-renderer/sample/example-with-cdn.html) and (its source)[https://github.com/wise-team/steem-content-renderer/blob/master/sample/example-with-cdn.html].
+See [demo](https://wise-team.github.io/steem-content-renderer/sample/live-demo.html) and (its source)[https://github.com/wise-team/steem-content-renderer/blob/master/sample/live-demo.html].
 
 ```html
         <script src="https://unpkg.com/steem-content-renderer"></script>
