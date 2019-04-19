@@ -19,6 +19,8 @@ const input = `
 # Sample post
 
 and some content
+
+Lets mention @ned #stark.
 `;
 
 const output = renderer.render(input);

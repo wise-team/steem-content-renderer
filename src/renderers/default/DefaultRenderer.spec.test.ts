@@ -1,10 +1,11 @@
-// tslint:disable no-console max-line-length quotemark
+// tslint:disable max-line-length quotemark
 
 import { expect } from "chai";
 import { JSDOM } from "jsdom";
 import "mocha";
 
-// import * as example1 from "./_test/example1.mock.test";
+import { Log } from "../../Log";
+
 import { DefaultRenderer } from "./DefaultRenderer";
 
 describe("DefaultRender", () => {
@@ -18,7 +19,7 @@ describe("DefaultRender", () => {
         assetsWidth: 640,
         assetsHeight: 480,
         imageProxyFn: (url: string) => url,
-        usertagUrlFn: (account: string) => `/@${account}`,
+        usertagUrlFn: (account: string) => `https://steemit.com/@${account}`,
         hashtagUrlFn: (hashtag: string) => `/trending/${hashtag}`,
         isLinkSafeFn: (url: string) => true, // !!url.match(/^(\/(?!\/)|https:\/\/steemit.com)/),
     };
@@ -34,7 +35,7 @@ describe("DefaultRender", () => {
         {
             name: "Renders steem mentions correctly",
             raw: "Content @noisy another content",
-            expected: '<p>Content <a href="/@noisy">@noisy</a> another content</p>',
+            expected: '<p>Content <a href="https://steemit.com/@noisy">@noisy</a> another content</p>',
         },
         {
             name: "Renders steem hashtags correctly",
@@ -67,6 +68,17 @@ describe("DefaultRender", () => {
             expected:
                 '<p><div class="videoWrapper"><iframe width="640" height="480" src="https://www.youtube.com/embed/0nFkmd-A7jA" allowfullscreen="allowfullscreen" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen" frameborder="0"></iframe></div></p>',
         },
+        {
+            name: "Allows links embedded via <a> tags",
+            raw: "<a href='https://steemit.com/utopian-io/@blockchainstudio/drugswars-revenue-and-transaction-analysis'>Drugwars - revenue and transaction analysis</a>",
+            expected: '<p><a href="https://steemit.com/utopian-io/@blockchainstudio/drugswars-revenue-and-transaction-analysis">Drugwars - revenue and transaction analysis</a></p>',
+        },
+
+        {
+            name: "Allows links embedded via <a> tags inside of markdown headers",
+            raw: "## <a href='https://steemit.com/utopian-io/@blockchainstudio/drugswars-revenue-and-transaction-analysis'>Drugwars - revenue and transaction analysis</a>",
+            expected: '<h2><a href="https://steemit.com/utopian-io/@blockchainstudio/drugswars-revenue-and-transaction-analysis">Drugwars - revenue and transaction analysis</a></h2>',
+        },
     ];
 
     tests.forEach(test =>
@@ -76,6 +88,10 @@ describe("DefaultRender", () => {
 
             const renderedNode = JSDOM.fragment(rendered);
             const comparisonNode = JSDOM.fragment(test.expected);
+
+            Log.log().debug("rendered", rendered);
+            Log.log().debug("expected", test.expected);
+
             expect(renderedNode.isEqualNode(comparisonNode)).to.be.equal(true);
         }),
     );

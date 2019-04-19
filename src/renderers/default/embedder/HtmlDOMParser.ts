@@ -213,6 +213,29 @@ export class HtmlDOMParser {
     }
 
     private linkify(content: string) {
+        // plaintext links
+        content = content.replace(linksAny("gi"), ln => {
+            if (linksRe.image.test(ln)) {
+                this.state.images.add(ln);
+                return `<img src="${this.normalizeUrl(ln)}" />`;
+            }
+
+            // do not linkify .exe or .zip urls
+            if (/\.(zip|exe)$/i.test(ln)) {
+                return ln;
+            }
+
+            // do not linkify phishy links
+            const sanitizedLink = this.linkSanitizer.sanitizeLink(ln, ln);
+            if (sanitizedLink === false) {
+                return `<div title='${this.localization.phishingWarning}' class='phishy'>${ln}</div>`;
+            }
+
+            this.state.links.add(sanitizedLink);
+            const out = `<a href="${this.normalizeUrl(ln)}">${sanitizedLink}</a>`;
+            return out;
+        });
+
         // hashtag
         content = content.replace(/(^|\s)(#[-a-z\d]+)/gi, tag => {
             if (/#[\d]+$/.test(tag)) {
@@ -252,28 +275,6 @@ export class HtmlDOMParser {
                 return valid ? `${preceedings}<a href="${userTagUrl}">@${user}</a>` : `${preceedings}@${user}`;
             },
         );
-
-        content = content.replace(linksAny("gi"), ln => {
-            if (linksRe.image.test(ln)) {
-                this.state.images.add(ln);
-                return `<img src="${this.normalizeUrl(ln)}" />`;
-            }
-
-            // do not linkify .exe or .zip urls
-            if (/\.(zip|exe)$/i.test(ln)) {
-                return ln;
-            }
-
-            // do not linkify phishy links
-            const sanitizedLink = this.linkSanitizer.sanitizeLink(ln, ln);
-            if (sanitizedLink === false) {
-                return `<div title='${this.localization.phishingWarning}' class='phishy'>${ln}</div>`;
-            }
-
-            this.state.links.add(sanitizedLink);
-            const out = `<a href="${this.normalizeUrl(ln)}">${sanitizedLink}</a>`;
-            return out;
-        });
         return content;
     }
 
