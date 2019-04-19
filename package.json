@@ -14,7 +14,8 @@
     "build:cleanbefore": "rm -rf dist",
     "build:lint": "tslint -c tslint.json -p tsconfig.lint.json",
     "build:node": "tsc",
-    "build": "npm run build:cleanbefore && npm run build:node && npm run build:lint",
+    "build:browser": "rm -rf dist/browser/ && webpack --config webpack.config.js",
+    "build": "npm run build:cleanbefore && npm run build:node && npm run build:lint && npm run build:browser",
     "prepare": "NODE_ENV=production npm run build",
     "test": "find src -name '*.spec.test.ts' | TS_NODE_FILES=true TS_NODE_CACHE=false TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' xargs mocha -r ts-node/register --require source-map-support/register",
     "verify": "find src -name '*.integration.test.ts' | TS_NODE_FILES=true TS_NODE_CACHE=false TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' xargs mocha -r ts-node/register --require source-map-support/register",
@@ -55,6 +56,9 @@
     "tslint": "^5.16.0",
     "typescript": "^3.4.4",
     "uuid": "^3.3.2",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.0",
+    "webpack-visualizer-plugin": "^0.1.11",
     "wise-tslint-configuration": "^0.2.0"
   },
   "commitlint": {
