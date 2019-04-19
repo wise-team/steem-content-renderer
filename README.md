@@ -45,7 +45,7 @@ const safeHtmlStr = renderer.render(postContent);
 ```
 
 ## Browser usage:
-See [demo](https://wise-team.github.io/steem-content-renderer/sample/live-demo.html) and (its source)[https://github.com/wise-team/steem-content-renderer/blob/master/sample/live-demo.html].
+See [demo](https://wise-team.github.io/steem-content-renderer/sample/live-demo.html) and [its source](https://github.com/wise-team/steem-content-renderer/blob/master/sample/live-demo.html).
 
 ```html
         <script src="https://unpkg.com/steem-content-renderer"></script>
