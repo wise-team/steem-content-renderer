@@ -16,10 +16,10 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, "dist", "browser"),
         filename: "steem-content-renderer.min.js",
-        library: "steem-content-renderer",
+        library: "SteemContentRenderer",
         libraryTarget: "umd"
     },
-    devtool: (DEFAULTS.isDevelopment ? 'cheap-eval-source-map' : 'source-map'),
+    devtool: (DEFAULTS.isDevelopment ? 'cheap-eval-source-map' : ''),
     target: "web",
     module: {
         rules: []
@@ -33,12 +33,17 @@ module.exports = {
     resolve: {
         extensions: [".js", ".json"]
     },
-    node: {
-        fs: "empty" // fix can't resolve "fs" in winston
-    },
     plugins: [
         new Visualizer({
             filename: './statistics.html'
-        })
+        }),
+        new webpack.DefinePlugin({
+            'process.env': (process.env.NODE_ENV === 'production') ? {
+              NODE_ENV: '"production"'
+            } : {
+              NODE_ENV: '"development"'
+            },
+            "_WEBPACK_BUILD": JSON.stringify(true),
+          }),
     ]
 }
