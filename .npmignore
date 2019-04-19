@@ -10,3 +10,4 @@
 /tslint.json
 /tsconfig.lint.json
 *.test.ts
+/dist/browser/statistics.html
