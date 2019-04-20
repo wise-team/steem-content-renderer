@@ -80,6 +80,103 @@
                 font-weight: inherit;
                 overflow: scroll;
             }
+
+            .Markdown table {
+                width: 100%;
+                margin-bottom: 1rem;
+                border-radius: 3px;
+            }
+
+            table {
+                width: 100%;
+                margin-bottom: 1rem;
+                border-radius: 3px;
+            }
+            thead,
+            tbody,
+            tfoot {
+                border: 1px solid #f1f1f1;
+                background-color: #fefefe;
+            }
+            caption {
+                padding: 0.5rem 0.625rem 0.625rem;
+                font-weight: bold;
+            }
+            thead {
+                background: #f8f8f8;
+                color: #333333;
+            }
+            tfoot {
+                background: #f1f1f1;
+                color: #333333;
+            }
+            thead tr,
+            tfoot tr {
+                background: transparent;
+            }
+            thead th,
+            thead td,
+            tfoot th,
+            tfoot td {
+                padding: 0.5rem 0.625rem 0.625rem;
+                font-weight: bold;
+                text-align: left;
+            }
+            tbody th,
+            tbody td {
+                padding: 0.5rem 0.625rem 0.625rem;
+            }
+            tbody tr:nth-child(even) {
+                border-bottom: 0;
+                background-color: #f1f1f1;
+            }
+            table.unstriped tbody {
+                background-color: #fefefe;
+            }
+            table.unstriped tbody tr {
+                border-bottom: 0;
+                border-bottom: 1px solid #f1f1f1;
+                background-color: #fefefe;
+            }
+
+            @media screen and (max-width: 63.9375em) {
+                table.stack thead {
+                    display: none;
+                }
+                table.stack tfoot {
+                    display: none;
+                }
+                table.stack tr,
+                table.stack th,
+                table.stack td {
+                    display: block;
+                }
+                table.stack td {
+                    border-top: 0;
+                }
+            }
+
+            table.scroll {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            table.hover thead tr:hover {
+                background-color: #f3f3f3;
+            }
+
+            table.hover tfoot tr:hover {
+                background-color: #ececec;
+            }
+
+            table.hover tbody tr:hover {
+                background-color: #f9f9f9;
+            }
+
+            table.hover:not(.unstriped) tr:nth-of-type(even):hover {
+                background-color: #ececec;
+            }
         </style>
     </head>
     <body>
