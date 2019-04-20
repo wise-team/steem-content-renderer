@@ -43,6 +43,27 @@
                 max-width: 100%;
             }
         </style>
+        <style>
+            /* Steemit-like styling of parsed content */
+
+            .Markdown div.videoWrapper {
+                width: 100%;
+                height: 0;
+                padding-bottom: 56.2%;
+                position: relative;
+            }
+            .Markdown div.videoWrapper iframe {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                left: 0;
+                top: 0;
+            }
+            .Markdown iframe {
+                max-width: 100%;
+                max-height: 75vw;
+            }
+        </style>
     </head>
     <body>
         <header>
@@ -79,7 +100,7 @@ https://youtu.be/B7C83L6iWJQ
         <p id="render-button-container"><button id="render-button">Render markdown</button></p>
 
         <h2>Output:</h2>
-        <p id="output">
+        <p id="output" class="Markdown MarkdownViewer">
             ...press the button...
         </p>
         <br />
