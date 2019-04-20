@@ -11,6 +11,7 @@
             a {border-bottom: 1px solid #444444; color: #444444; text-decoration: none;}
             a:hover {border-bottom: 0;}
             /**/
+            h1 { font-size: 2.2em; }
             h2, h3, h4, h5 { margin-bottom: 0; }
             #output {
                 border: 1px solid #777;
@@ -21,6 +22,7 @@
                 padding: 0.5rem;
                 background: #eee;
                 border: 1px solid #777;
+                overflow-x: scroll;
             }
             #render-button-container {
                 text-align: center;
@@ -35,6 +37,7 @@
             }
             header small {
                 color: #999;
+                font-size: 50%;
             }
             img {
                 max-width: 100%;
@@ -45,8 +48,17 @@
         <header>
             <h1>Steem-content-renderer <small>example</small></h1>
             <aside>
-                This example uses some markdown and transforms it to html. It loads the library 
-                from the unpkg CDN: <em><a href="https://unpkg.com/steem-content-renderer">https://unpkg.com/steem-content-renderer</a></em>.
+                Steem-content-renderer is aimed at unifying post rendering across all Steem interfaces.
+                The rendering code was extracted from 
+                <a href="https://github.com/steemit/condenser">condenser by Steemit</a>, refactored, tested
+                and bundled into a standalone library. This approach allows independedt development and 
+                continous improvement of post rendering in Steem blockchain. As for now it is fully compatible
+                with the Steemit way of rendering posts. See 
+                the <a href="https://github.com/wise-team/steem-content-renderer">repository</a>, integrate into your project,
+                star, make pull requests and create issues. Let's make the project alive!
+                <hr />
+                This example uses some markdown and transforms it to html. The library is loaded from the
+                unpkg CDN: <em><a href="https://unpkg.com/steem-content-renderer">https://unpkg.com/steem-content-renderer</a></em>.
             </aside>
         </header>
 
