@@ -1,21 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, initial-scale=1.0"/>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, initial-scale=1.0" />
         <title>Steem-content-renderer live demo</title>
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600" rel="stylesheet" type="text/css"/>
+        <link href="https://fonts.googleapis.com/css?family=Source+Serif+Pro:400,600" rel="stylesheet" type="text/css"/>
         <style>
             /* source: https://github.com/setetres/evenbettermotherfuckingwebsite */
-            body {margin: 5% auto; padding: 0 3rem; background: #f2f2f2; color: #444444; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.8; text-shadow: 0 1px 0 #ffffff; max-width: 800px;}
-            code {background: white;}
-            a {border-bottom: 1px solid #444444; color: #444444; text-decoration: none;}
-            a:hover {border-bottom: 0;}
-            /**/
-            h1 { font-size: 2.2em; }
-            h2, h3, h4, h5 { margin-bottom: 0; }
-            #output {
-                border: 1px solid #777;
-                padding: 0.5rem;
+            body {
+                margin: 5% auto;
+                padding: 0 3rem;
+                background: #f2f2f2;
+                color: #444444;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                font-size: 16px;
+                line-height: 1.8;
+                text-shadow: 0 1px 0 #ffffff;
+                max-width: 800px;
+            }
+            code {
+                background: white;
+            }
+            a {
+                color: #5f0fe2;
+                text-decoration: none;
+            }
+            a:hover {
+                border-bottom: 0;
+            }
+            h1 {
+                font-size: 2.2em;
+            }
+            h2,
+            h3,
+            h4,
+            h5 {
+                margin-bottom: 0;
+            }
+            .wrapper {
+                background-color: #ffffff;
+                padding: 1rem 80px 2rem 80px;
             }
             #output-markup {
                 width: 100%;
@@ -43,170 +68,37 @@
                 max-width: 100%;
             }
         </style>
-        <style>
-            /* Steemit-like styling of parsed content */
-
-            .Markdown.MarkdownViewer {
-                background-color: #ffffff;
-            }
-            .Markdown div.videoWrapper {
-                width: 100%;
-                height: 0;
-                padding-bottom: 56.2%;
-                position: relative;
-            }
-            .Markdown div.videoWrapper iframe {
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                left: 0;
-                top: 0;
-            }
-            .Markdown iframe {
-                max-width: 100%;
-                max-height: 75vw;
-            }
-
-            .Markdown pre > code {
-                display: block;
-            }
-
-            .Markdown code {
-                padding: 0.2rem;
-                font-size: 85%;
-                border-radius: 3px;
-                border: none;
-                background-color: #f4f4f4;
-                font-weight: inherit;
-                overflow: scroll;
-            }
-
-            .Markdown table {
-                width: 100%;
-                margin-bottom: 1rem;
-                border-radius: 3px;
-            }
-
-            table {
-                width: 100%;
-                margin-bottom: 1rem;
-                border-radius: 3px;
-            }
-            thead,
-            tbody,
-            tfoot {
-                border: 1px solid #f1f1f1;
-                background-color: #fefefe;
-            }
-            caption {
-                padding: 0.5rem 0.625rem 0.625rem;
-                font-weight: bold;
-            }
-            thead {
-                background: #f8f8f8;
-                color: #333333;
-            }
-            tfoot {
-                background: #f1f1f1;
-                color: #333333;
-            }
-            thead tr,
-            tfoot tr {
-                background: transparent;
-            }
-            thead th,
-            thead td,
-            tfoot th,
-            tfoot td {
-                padding: 0.5rem 0.625rem 0.625rem;
-                font-weight: bold;
-                text-align: left;
-            }
-            tbody th,
-            tbody td {
-                padding: 0.5rem 0.625rem 0.625rem;
-            }
-            tbody tr:nth-child(even) {
-                border-bottom: 0;
-                background-color: #f1f1f1;
-            }
-            table.unstriped tbody {
-                background-color: #fefefe;
-            }
-            table.unstriped tbody tr {
-                border-bottom: 0;
-                border-bottom: 1px solid #f1f1f1;
-                background-color: #fefefe;
-            }
-
-            @media screen and (max-width: 63.9375em) {
-                table.stack thead {
-                    display: none;
-                }
-                table.stack tfoot {
-                    display: none;
-                }
-                table.stack tr,
-                table.stack th,
-                table.stack td {
-                    display: block;
-                }
-                table.stack td {
-                    border-top: 0;
-                }
-            }
-
-            table.scroll {
-                display: block;
-                width: 100%;
-                overflow-x: auto;
-            }
-
-            table.hover thead tr:hover {
-                background-color: #f3f3f3;
-            }
-
-            table.hover tfoot tr:hover {
-                background-color: #ececec;
-            }
-
-            table.hover tbody tr:hover {
-                background-color: #f9f9f9;
-            }
-
-            table.hover:not(.unstriped) tr:nth-of-type(even):hover {
-                background-color: #ececec;
-            }
-        </style>
+        <link rel="stylesheet" href="steemit.css" />
     </head>
     <body>
         <header>
             <h1>Steem-content-renderer <small>example</small></h1>
             <aside>
-                Steem-content-renderer is aimed at unifying post rendering across all Steem interfaces.
-                The rendering code was extracted from 
-                <a href="https://github.com/steemit/condenser">condenser by Steemit</a>, refactored, tested
-                and bundled into a standalone library. This approach allows independedt development and 
-                continous improvement of post rendering in Steem blockchain. As for now it is fully compatible
-                with the Steemit way of rendering posts. See 
-                the <a href="https://github.com/wise-team/steem-content-renderer">repository</a>, integrate into your project,
-                star, make pull requests and create issues. Let's make the project alive!
+                Steem-content-renderer is aimed at unifying post rendering across all Steem interfaces. The rendering
+                code was extracted from
+                <a href="https://github.com/steemit/condenser">condenser by Steemit</a>, refactored, tested and bundled
+                into a standalone library. This approach allows independedt development and continous improvement of
+                post rendering in Steem blockchain. As for now it is fully compatible with the Steemit way of rendering
+                posts. See the <a href="https://github.com/wise-team/steem-content-renderer">repository</a>, integrate
+                into your project, star, make pull requests and create issues. Let's make the project alive!
                 <hr />
-                This example uses some markdown and transforms it to html. The library is loaded from the
-                unpkg CDN: <em><a href="https://unpkg.com/steem-content-renderer">https://unpkg.com/steem-content-renderer</a></em>.
+                This example uses some markdown and transforms it to html. The library is loaded from the unpkg CDN:
+                <em><a href="https://unpkg.com/steem-content-renderer">https://unpkg.com/steem-content-renderer</a></em
+                >.
             </aside>
         </header>
 
         <h2>Render markdown:</h2>
         <div class="load-post-form">
-            Link to post (busy or steemit): <input type="text" id="post-link-input">
-            <button id="load-post-button">Load steem post</button></div>
+            Link to post (busy or steemit): <input type="text" id="post-link-input" />
+            <button id="load-post-button">Load steem post</button>
+        </div>
         <textarea rows="12" style="width: 100%;" id="input">
 # Sample post
 and some content.
 
 Let's mention @ned
-or include a tag #steem. 
+or include a tag #steem.
 
 https://youtu.be/B7C83L6iWJQ
 
@@ -214,16 +106,18 @@ https://youtu.be/B7C83L6iWJQ
         <p id="render-button-container"><button id="render-button">Render markdown</button></p>
 
         <h2>Output:</h2>
-        <p id="output" class="Markdown MarkdownViewer">
-            ...press the button...
-        </p>
+        <div class="wrapper theme-original PostFull__body entry-content">
+            <p id="output" class="Markdown MarkdownViewer">
+                ...press the button...
+            </p>
+        </div>
         <br />
 
         <h2>Generated HTML markup</h2>
         <pre id="output-markup">
             ...press the button...
         </pre>
-        
+
         <script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
         <script src="https://unpkg.com/jquery"></script>
         <script src="https://unpkg.com/steem-content-renderer@latest"></script>
@@ -238,10 +132,10 @@ https://youtu.be/B7C83L6iWJQ
                 ipfsPrefix: "",
                 assetsWidth: 640,
                 assetsHeight: 480,
-                imageProxyFn: (url) => url,
-                usertagUrlFn: (account) => "https://steemit.com/@" + account,
-                hashtagUrlFn: (hashtag) => "https://steemit.com/trending/" + hashtag,
-                isLinkSafeFn: (url) => true,
+                imageProxyFn: url => "https://steemitimages.com/640x0/" + url,
+                usertagUrlFn: account => "https://steemit.com/@" + account,
+                hashtagUrlFn: hashtag => "https://steemit.com/trending/" + hashtag,
+                isLinkSafeFn: url => true,
             });
 
             $(document).ready(() => {
@@ -260,7 +154,7 @@ https://youtu.be/B7C83L6iWJQ
                 function render() {
                     const input = inputElem.val();
                     const output = renderer.render(input);
-                    
+
                     console.log("Rendered", output);
                     setOutput(output);
                 }
@@ -299,12 +193,10 @@ https://youtu.be/B7C83L6iWJQ
                             console.log("Content loaded", postMarkdown);
                             inputElem.text(postMarkdown);
                             render();
-                        }
-                        catch (error) {
+                        } catch (error) {
                             inputElem.text("Error while loading post @" + author + "/" + permlink + ": " + error);
                         }
                     })();
-
                 });
             });
         </script>

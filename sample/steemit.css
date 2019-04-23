@@ -1,0 +1,263 @@
+.PostFull__body {
+    clear: left;
+    margin: 0 auto;
+}
+
+.Markdown.MarkdownViewer {
+    background-color: #ffffff;
+    color: #333;
+}
+
+.Markdown {
+    font-family: "Source Serif Pro", serif;
+    font-size: 120%;
+    line-height: 150%;
+}
+
+.Markdown a {
+    color: #1fbf8f;
+    text-decoration: none;
+}
+.Markdown a:hover {
+    color: #06d6a9;
+}
+
+.Markdown {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    -webkit-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+.Markdown h1,
+.Markdown h2,
+.Markdown h3,
+.Markdown h4,
+.Markdown h5,
+.Markdown h6 {
+    font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 600;
+}
+.Markdown h1 {
+    margin: 2.5rem 0 0.3rem;
+    font-size: 160%;
+}
+.Markdown h2 {
+    margin: 2.5rem 0 0.3rem;
+    font-size: 140%;
+}
+.Markdown h3 {
+    margin: 2rem 0 0.3rem;
+    font-size: 120%;
+}
+.Markdown h4 {
+    margin: 1.5rem 0 0.2rem;
+    font-size: 110%;
+}
+.Markdown h5 {
+    margin: 1rem 0 0.2rem;
+    font-size: 100%;
+}
+.Markdown h6 {
+    margin: 1rem 0 0.2rem;
+    font-size: 90%;
+}
+.Markdown code {
+    padding: 0.2rem;
+    font-size: 85%;
+    border-radius: 3px;
+    border: none;
+    background-color: #f4f4f4;
+    font-weight: inherit;
+    overflow: scroll;
+}
+.Markdown pre > code {
+    display: block;
+}
+.Markdown strong {
+    font-weight: 600;
+}
+.Markdown ol,
+.Markdown ul {
+    margin-left: 2rem;
+}
+.Markdown table td {
+    word-break: normal;
+}
+.Markdown p {
+    font-size: 100%;
+    line-height: 150%;
+    margin: 0 0 1.5rem 0;
+}
+.Markdown img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+}
+.Markdown iframe {
+    max-width: 100%;
+    max-height: 75vw;
+}
+.Markdown div.pull-right {
+    float: right;
+    padding-left: 1rem;
+    max-width: 50%;
+}
+.Markdown div.pull-left {
+    float: left;
+    padding-right: 1rem;
+    max-width: 50%;
+}
+.Markdown div.text-justify {
+    text-align: justify;
+}
+.Markdown div.text-right {
+    text-align: right;
+}
+.Markdown div.text-center {
+    text-align: center;
+}
+.Markdown div.text-rtl {
+    direction: rtl;
+}
+.Markdown div.videoWrapper {
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.2%;
+    position: relative;
+}
+.Markdown div.videoWrapper iframe {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+}
+.theme-original .Markdown blockquote {
+    border-left: 1px solid #788187;
+}
+.theme-light .Markdown blockquote {
+    border-left: 1px solid #788187;
+}
+.theme-dark .Markdown blockquote {
+    border-left: 1px solid #a6b2ba;
+}
+.theme-original .Markdown blockquote > p {
+    color: #788187;
+}
+.theme-light .Markdown blockquote > p {
+    color: #788187;
+}
+.theme-dark .Markdown blockquote > p {
+    color: #a6b2ba;
+}
+
+.Markdown table {
+    width: 100%;
+    margin-bottom: 1rem;
+    border-radius: 3px;
+}
+
+table {
+    width: 100%;
+    margin-bottom: 1rem;
+    border-radius: 3px;
+}
+thead,
+tbody,
+tfoot {
+    border: 1px solid #f1f1f1;
+    background-color: #fefefe;
+}
+caption {
+    padding: 0.5rem 0.625rem 0.625rem;
+    font-weight: bold;
+}
+thead {
+    background: #f8f8f8;
+    color: #333333;
+}
+tfoot {
+    background: #f1f1f1;
+    color: #333333;
+}
+thead tr,
+tfoot tr {
+    background: transparent;
+}
+thead th,
+thead td,
+tfoot th,
+tfoot td {
+    padding: 0.5rem 0.625rem 0.625rem;
+    font-weight: bold;
+    text-align: left;
+}
+tbody th,
+tbody td {
+    padding: 0.5rem 0.625rem 0.625rem;
+}
+tbody tr:nth-child(even) {
+    border-bottom: 0;
+    background-color: #f1f1f1;
+}
+table.unstriped tbody {
+    background-color: #fefefe;
+}
+table.unstriped tbody tr {
+    border-bottom: 0;
+    border-bottom: 1px solid #f1f1f1;
+    background-color: #fefefe;
+}
+
+@media screen and (max-width: 63.9375em) {
+    table.stack thead {
+        display: none;
+    }
+    table.stack tfoot {
+        display: none;
+    }
+    table.stack tr,
+    table.stack th,
+    table.stack td {
+        display: block;
+    }
+    table.stack td {
+        border-top: 0;
+    }
+}
+
+table.scroll {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+}
+
+table.hover thead tr:hover {
+    background-color: #f3f3f3;
+}
+
+table.hover tfoot tr:hover {
+    background-color: #ececec;
+}
+
+table.hover tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+table.hover:not(.unstriped) tr:nth-of-type(even):hover {
+    background-color: #ececec;
+}
+
+blockquote {
+    margin: 0 0 1rem;
+    padding: 0.5625rem 1.25rem 0 1.1875rem;
+    border-left: 1px solid #cacaca;
+}
+blockquote,
+blockquote p {
+    line-height: 1.6;
+    color: #8a8a8a;
+}
