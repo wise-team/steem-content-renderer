@@ -1,7 +1,5 @@
 dist: xenial
 language: node_js
-node_js:
-  - '10'
 
 branches:
   except:
@@ -20,13 +18,11 @@ script:
   # Test installation:
   - mkdir ~/libtest && cp ./sample/demo-lib.js ~/libtest/demo-lib.js && cd ~/libtest && npm install $TRAVIS_BUILD_DIR && node demo-lib.js 
 
-jobs:
-  include:
-    - stage: deploy
-      provider: script
-      script: npx semantic-release
-      skip_cleanup: true
-      on:
-        tags: false
-        all_branches: true
-      node_js: '10'
+deploy:
+  - provider: script
+    script: npx semantic-release
+    skip_cleanup: true
+    on:
+      tags: false
+      all_branches: true
+
