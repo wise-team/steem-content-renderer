@@ -33,6 +33,9 @@ module.exports = {
     resolve: {
         extensions: [".js", ".json"]
     },
+    node: {
+        fs: "empty" // fix can't resolve "fs" in ow
+    },
     plugins: [
         new Visualizer({
             filename: './statistics.html'
