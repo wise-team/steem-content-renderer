@@ -16,7 +16,7 @@ script:
   - npm run test
   - node sample/demo-local.js
   # Test installation:
-  - mkdir ~/libtest && cp ./sample/demo-lib.js ~/libtest/demo-lib.js && cd ~/libtest && npm install $TRAVIS_BUILD_DIR && node demo-lib.js 
+  - (mkdir ~/libtest && cp ./sample/demo-lib.js ~/libtest/demo-lib.js && cd ~/libtest && npm install $TRAVIS_BUILD_DIR && node demo-lib.js)
 
 deploy:
   - provider: script
