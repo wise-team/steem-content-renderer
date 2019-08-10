@@ -1,8 +1,8 @@
 import { CustomError } from "universe-log";
 
 export class SecurityChecker {
-    public static checkSecurity(text: string) {
-        if (this.containsScriptTag(text)) {
+    public static checkSecurity(text: string, props: { allowScriptTag: boolean }) {
+        if (!props.allowScriptTag && this.containsScriptTag(text)) {
             throw new SecurityChecker.SecurityError(
                 "Renderer rejected the input because of insecure content: text contains script tag",
             );

@@ -13,6 +13,7 @@ describe("DefaultRender", () => {
         baseUrl: "https://steemit.com/",
         breaks: true,
         skipSanitization: false,
+        allowInsecureScriptTags: false,
         addNofollowToLinks: true,
         doNotShowImages: false,
         ipfsPrefix: "",
@@ -70,14 +71,18 @@ describe("DefaultRender", () => {
         },
         {
             name: "Allows links embedded via <a> tags",
-            raw: "<a href='https://steemit.com/utopian-io/@blockchainstudio/drugswars-revenue-and-transaction-analysis'>Drugwars - revenue and transaction analysis</a>",
-            expected: '<p><a href="https://steemit.com/utopian-io/@blockchainstudio/drugswars-revenue-and-transaction-analysis">Drugwars - revenue and transaction analysis</a></p>',
+            raw:
+                "<a href='https://steemit.com/utopian-io/@blockchainstudio/drugswars-revenue-and-transaction-analysis'>Drugwars - revenue and transaction analysis</a>",
+            expected:
+                '<p><a href="https://steemit.com/utopian-io/@blockchainstudio/drugswars-revenue-and-transaction-analysis">Drugwars - revenue and transaction analysis</a></p>',
         },
 
         {
             name: "Allows links embedded via <a> tags inside of markdown headers",
-            raw: "## <a href='https://steemit.com/utopian-io/@blockchainstudio/drugswars-revenue-and-transaction-analysis'>Drugwars - revenue and transaction analysis</a>",
-            expected: '<h2><a href="https://steemit.com/utopian-io/@blockchainstudio/drugswars-revenue-and-transaction-analysis">Drugwars - revenue and transaction analysis</a></h2>',
+            raw:
+                "## <a href='https://steemit.com/utopian-io/@blockchainstudio/drugswars-revenue-and-transaction-analysis'>Drugwars - revenue and transaction analysis</a>",
+            expected:
+                '<h2><a href="https://steemit.com/utopian-io/@blockchainstudio/drugswars-revenue-and-transaction-analysis">Drugwars - revenue and transaction analysis</a></h2>',
         },
     ];
 
@@ -95,4 +100,20 @@ describe("DefaultRender", () => {
             expect(renderedNode.isEqualNode(comparisonNode)).to.be.equal(true);
         }),
     );
+
+    it("Allows insecure script tags when allowInsecureScriptTags = true", () => {
+        const renderer = new DefaultRenderer({ ...defaultOptions, allowInsecureScriptTags: true });
+        const insecureContent = '<script src="">';
+        renderer.render(insecureContent);
+    });
+
+    it("Does not allow insecure script tags when allowInsecureScriptTags = false", () => {
+        const renderer = new DefaultRenderer({
+            ...defaultOptions,
+            skipSanitization: true,
+            allowInsecureScriptTags: false,
+        });
+        const insecureContent = '<script src="">';
+        expect(() => renderer.render(insecureContent)).to.throw(/insecure content/);
+    });
 });

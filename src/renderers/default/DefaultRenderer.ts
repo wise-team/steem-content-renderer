@@ -62,7 +62,7 @@ export class DefaultRenderer {
         text = this.wrapRenderedTextWithHtmlIfNeeded(text);
         text = this.embedder.markAssets(text);
         text = this.sanitize(text);
-        SecurityChecker.checkSecurity(text);
+        SecurityChecker.checkSecurity(text, { allowScriptTag: this.options.allowInsecureScriptTags });
         text = this.embedder.insertAssets(text);
 
         return text;
@@ -115,6 +115,7 @@ export namespace DefaultRenderer {
         baseUrl: string;
         breaks: boolean;
         skipSanitization: boolean;
+        allowInsecureScriptTags: boolean;
         addNofollowToLinks: boolean;
         doNotShowImages: boolean;
         ipfsPrefix: string;

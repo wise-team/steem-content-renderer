@@ -4,6 +4,7 @@ const renderer = new SteemContentRenderer.DefaultRenderer({
     baseUrl: "https://steemit.com/",
     breaks: true,
     skipSanitization: false,
+    allowInsecureScriptTags: false,
     addNofollowToLinks: true,
     doNotShowImages: false,
     ipfsPrefix: "",
