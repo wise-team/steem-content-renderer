@@ -2,7 +2,7 @@
  * Based on: https://github.com/steemit/condenser/raw/master/src/shared/HtmlReady.js
  */
 // tslint:disable max-classes-per-file
-import { CustomError } from "universe-log";
+import ChainedError from "typescript-chained-error";
 import * as xmldom from "xmldom";
 
 import { Log } from "../../../Log";
@@ -337,7 +337,7 @@ export namespace HtmlDOMParser {
         links: Set<string>;
     }
 
-    export class HtmlDOMParserError extends CustomError {
+    export class HtmlDOMParserError extends ChainedError {
         public constructor(message?: string, cause?: Error) {
             super(message, cause);
         }

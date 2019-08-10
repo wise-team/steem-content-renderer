@@ -1,4 +1,4 @@
-import { CustomError } from "universe-log";
+import ChainedError from "typescript-chained-error";
 
 export class SecurityChecker {
     public static checkSecurity(text: string, props: { allowScriptTag: boolean }) {
@@ -16,7 +16,7 @@ export class SecurityChecker {
 
 export namespace SecurityChecker {
     /* tslint:disable max-classes-per-file */
-    export class SecurityError extends CustomError {
+    export class SecurityError extends ChainedError {
         public constructor(message?: string, cause?: Error) {
             super(message, cause);
         }
