@@ -80,7 +80,6 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
-  "release": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/wise-team/steem-content-renderer"
