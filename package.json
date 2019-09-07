@@ -20,6 +20,7 @@
     "prepare": "NODE_ENV=production npm run build",
     "test": "find src -name '*.spec.test.ts' | TS_NODE_FILES=true TS_NODE_CACHE=false TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' xargs mocha -r ts-node/register --require source-map-support/register",
     "verify": "find src -name '*.integration.test.ts' | TS_NODE_FILES=true TS_NODE_CACHE=false TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' xargs mocha -r ts-node/register --require source-map-support/register",
+    "verify:browser":" testcafe --app-init-timeout 4000 --selector-timeout 2000 --assertion-timeout 2000 chrome browser-test/browser-test.js",
     "lint-fix": "tslint --fix -c tslint.json -p tsconfig.lint.json",
     "semantic-release": "semantic-release"
   },
@@ -54,6 +55,7 @@
     "mocha": "^6.2.0",
     "semantic-release": "^16.0.0-beta.22",
     "sinon": "^7.4.1",
+    "testcafe": "^1.4.3",
     "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
     "typescript": "^3.5.3",
