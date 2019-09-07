@@ -116,4 +116,13 @@ describe("DefaultRender", () => {
         const insecureContent = '<script src="">';
         expect(() => renderer.render(insecureContent)).to.throw(/insecure content/);
     });
+
+    it("Rejects mixed image tag", () => {
+        const renderer = new DefaultRenderer({ ...defaultOptions });
+        const markup = `<img src="![img.jpg](https://img.jpg)"/>`;
+        const rendered = renderer.render(markup);
+
+        const expected = `<p><img src="brokenimg.jpg" /></p>\n`;
+        expect(rendered).to.be.equal(expected);
+    });
 });
