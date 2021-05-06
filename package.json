@@ -27,7 +27,7 @@
   "dependencies": {
     "ow": "^0.13.2",
     "remarkable": "^1.7.1",
-    "sanitize-html": "^1.20.1",
+    "sanitize-html": "^2.3.2",
     "typescript-chained-error": "^1.3.2",
     "universe-log": "^2.1.0",
     "xmldom": "^0.1.27"
