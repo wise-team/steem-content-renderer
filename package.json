@@ -52,7 +52,7 @@
     "husky": "^3.0.3",
     "jsdom": "^15.1.1",
     "lodash": "^4.17.15",
-    "mocha": "^6.2.0",
+    "mocha": "^10.2.0",
     "semantic-release": "^16.0.0-beta.22",
     "sinon": "^7.4.1",
     "testcafe": "^1.4.3",
