@@ -60,8 +60,8 @@
     "tslint": "^5.18.0",
     "typescript": "^3.5.3",
     "uuid": "^3.3.2",
-    "webpack": "^4.39.1",
-    "webpack-cli": "^3.3.6",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
     "webpack-visualizer-plugin": "^0.1.11",
     "wise-tslint-configuration": "^0.2.0"
   },
